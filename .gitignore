@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment Variables
+.env
+backend/.env
+frontend/.env
+
+# Build Output
+build/
+dist/
+
+# Logs
+logs
+*.log
