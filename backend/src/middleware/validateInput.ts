@@ -1,4 +1,5 @@
-const { body, validationResult } = require('express-validator');
+import { body, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
 const validateRegistration = [
     body('username')
@@ -8,15 +9,17 @@ const validateRegistration = [
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
 ];
 
-const handleValidationErrors = (req, res, next) => {
+const handleValidationErrors = (req: Request, res: Response, next: NextFunction): void => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        res.status(400).json({ errors: errors.array() });
+        return; 
     }
-    next();
+    next(); 
 };
 
-module.exports = {
+
+export {
     validateRegistration,
     handleValidationErrors,
 };
