@@ -1,6 +1,5 @@
 import React from 'react';
-import Registration from '../src/components/Registration';
-
+import Registration from './components/Registration';
 const App = () => {
     return (
         <div>

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import User from '../models/User';
 
 const registerUser = async (req: Request, res: Response): Promise<void> => {
-    const { username, email, password, role = 'participant' } = req.body;
+    const { firstName, lastName, email, password, role = 'participant' } = req.body;
 
     try {
         const existingUserByEmail = await User.findByEmail(email);
@@ -12,14 +12,8 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
             return; 
         }
 
-        const existingUserByUsername = await User.findByUsername(username);
-        if (existingUserByUsername) {
-            res.status(400).json({ message: 'Username already in use' });
-            return;
-        }
-
         const hashedPassword = await bcrypt.hash(password, 10);
-        const userId = await User.create(username, email, hashedPassword, role);
+        const userId = await User.create(firstName, lastName, email, hashedPassword, role);
 
         res.status(201).json({ message: 'User registered successfully', userId });
     } catch (error) {

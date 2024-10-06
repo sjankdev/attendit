@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
 
-const Registration = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const [serverError, setServerError] = useState('');
+interface RegistrationForm {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+}
 
-    const onSubmit = async (data) => {
+const Registration: React.FC = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm<RegistrationForm>();
+    const [serverError, setServerError] = useState<string>('');
+
+    const onSubmit: SubmitHandler<RegistrationForm> = async (data) => {
         setServerError('');
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', data);
             alert(response.data.message);
-        } catch (error) {
+        } catch (error: any) {
             if (error.response) {
                 console.error(error.response.data);
                 setServerError(error.response.data.message || 'An error occurred');
@@ -24,15 +31,24 @@ const Registration = () => {
             <h2>Register</h2>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
-                    <label>Username:</label>
+                    <label>First Name:</label>
                     <input
                         type="text"
-                        {...register("username", {
-                            required: "Username is required",
-                            minLength: { value: 3, message: "Username must be at least 3 characters long" }
+                        {...register("firstName", {
+                            required: "First name is required"
                         })}
                     />
-                    {errors.username && <p style={{ color: 'red' }}>{errors.username.message}</p>}
+                    {errors.firstName && <p style={{ color: 'red' }}>{errors.firstName.message}</p>}
+                </div>
+                <div>
+                    <label>Last Name:</label>
+                    <input
+                        type="text"
+                        {...register("lastName", {
+                            required: "Last name is required"
+                        })}
+                    />
+                    {errors.lastName && <p style={{ color: 'red' }}>{errors.lastName.message}</p>}
                 </div>
                 <div>
                     <label>Email:</label>

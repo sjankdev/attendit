@@ -2,11 +2,14 @@ import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
 const validateRegistration = [
-    body('username')
-        .notEmpty().withMessage('Username is required')
-        .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long'),
-    body('email').isEmail().withMessage('Email is not valid'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('firstName')
+        .notEmpty().withMessage('First name is required'),
+    body('lastName')
+        .notEmpty().withMessage('Last name is required'),
+    body('email')
+        .isEmail().withMessage('Email is not valid'),
+    body('password')
+        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
 ];
 
 const handleValidationErrors = (req: Request, res: Response, next: NextFunction): void => {
@@ -17,7 +20,6 @@ const handleValidationErrors = (req: Request, res: Response, next: NextFunction)
     }
     next(); 
 };
-
 
 export {
     validateRegistration,

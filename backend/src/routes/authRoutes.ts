@@ -6,9 +6,10 @@ const router = express.Router();
 
 interface RegisterRequest extends Request {
   body: {
-    username: string;
-    password: string;
+    firstName: string;
+    lastName: string;
     email: string;
+    password: string;
   };
 }
 
