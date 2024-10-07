@@ -8,17 +8,23 @@ const registerUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const existingUserByEmail = await UserModel.findByEmail(email); 
         if (existingUserByEmail) {
-            res.status(400).json({ message: 'Email already in use' });
+            res.status(400).json({ success: false, message: 'Email already in use' });
             return; 
         }
-
+        
         const hashedPassword = await bcrypt.hash(password, 10);
-        const userId = await UserModel.create(firstName, lastName, email, hashedPassword, role); 
+        const user = await UserModel.create(firstName, lastName, email, hashedPassword, role); 
+        
+        const { password: _, ...userWithoutPassword } = user;
 
-        res.status(201).json({ message: 'User registered successfully', userId });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error', error });
+        res.status(201).json({ success: true, message: 'User registered successfully', user: userWithoutPassword });
+    } catch (error: unknown) { 
+        if (error instanceof Error) { 
+            console.error(error);
+            res.status(500).json({ success: false, message: 'Server error', error: error.message });
+        } else {
+            res.status(500).json({ success: false, message: 'Server error' });
+        }
     }
 };
 

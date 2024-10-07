@@ -8,6 +8,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User as UserModelInterface } from './models/User';  
 import UserModel from './models/UserModel';  
 import jwt from 'jsonwebtoken';
+import { signToken } from './utils/jwtHelper';
 
 const app = express();
 
@@ -46,43 +47,40 @@ passport.deserializeUser(async (id: number, done) => {
 });
 
 passport.use(
-    new GoogleStrategy(
-      {
-        clientID: process.env.GOOGLE_CLIENT_ID!,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        callbackURL: '/auth/google/callback',
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          const email = profile.emails && profile.emails[0].value;
-          if (!email) {
-            return done(new Error('No email found in Google profile'), false);
-          }
-  
-          let user = await UserModel.findByEmail(email);
-          if (!user) {
-            user = await UserModel.create(
-              profile.name?.givenName || '',
-              profile.name?.familyName || '',
-              email,
-              '', 
-              'participant'
-            );
-          }
-  
-          const payload = { id: user.id, email: user.email, role: user.role };
-          const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
-  
-          user.token = token;
-  
-          return done(null, user);
-        } catch (error) {
-          return done(error, false);
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: '/auth/google/callback',
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0]?.value;
+        if (!email) {
+          return done(new Error('No email found in Google profile'), false);
         }
+
+        let user = await UserModel.findByEmail(email);
+        if (!user) {
+          user = await UserModel.create(
+            profile.name?.givenName || '',
+            profile.name?.familyName || '',
+            email,
+            '', 
+            'participant'
+          );
+        }
+
+        const payload = { id: user.id, email: user.email, role: user.role };
+        const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+
+        return done(null, { ...user, token });
+      } catch (error) {
+        return done(error);
       }
-    )
-  );
-  
+    }
+  )
+);
 
 app.use('/api/auth', authRoutes);
 
@@ -91,13 +89,16 @@ app.get('/auth/google',
 );
 
 app.get(
-    '/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
-    (req, res) => {
-        const user = req.user as any; 
-        console.log('Redirecting to:', `http://localhost:3000/home?token=${user.token}`);
-        res.redirect(`http://localhost:3000/home?token=${user.token}`);
-    }
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+      const user = req.user as any; 
+      const payload = { id: user.id, email: user.email, role: user.role };
+      const token = signToken(payload, '1h');
+      
+      console.log('Redirecting to:', `http://localhost:3000/home?token=${token}`);
+      res.redirect(`http://localhost:3000/home?token=${token}`);
+  }
 );
 
 export default app;

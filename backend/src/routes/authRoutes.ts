@@ -26,7 +26,7 @@ router.get('/logout', (req, res) => {
           if (err) {
               return res.status(500).send('Session destruction failed');
           }
-          res.redirect('/'); 
+          res.redirect('/');
       });
   });
 });
