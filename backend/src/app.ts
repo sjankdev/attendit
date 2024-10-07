@@ -61,7 +61,6 @@ passport.use(new GoogleStrategy({
             return done(null, existingUser);
         }
 
-        
         const newUser = await UserModel.create(
             profile.name?.givenName || '',
             profile.name?.familyName || '',
@@ -70,7 +69,6 @@ passport.use(new GoogleStrategy({
             'participant'
         );
 
-        
         if (!newUser) {
             return done(new Error("Failed to create user"), false);
         }
@@ -90,8 +88,7 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
-        res.redirect('/');  
+        res.redirect('http://localhost:3000/home');  
     }
 );
-
 export default app;
