@@ -30,7 +30,8 @@ router.get('/logout', async (req, res) => {
   if (req.isAuthenticated()) {
       const userId = req.user.id; 
 
-      await UserModel.updateRefreshToken(userId, null);
+      await UserModel.updateRefreshToken(userId, null); 
+      await UserModel.revokeRefreshToken(userId); 
 
       req.logout((err) => {
           if (err) {
@@ -42,5 +43,6 @@ router.get('/logout', async (req, res) => {
       res.status(401).json({ message: 'Not authenticated' });
   }
 });
+
 
 export default router;

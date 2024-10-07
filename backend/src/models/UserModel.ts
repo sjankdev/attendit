@@ -17,7 +17,8 @@ class UserModel {
             lastName,
             email,
             password, 
-            role
+            role,
+            revoked: false
         } as User;
     }
 
@@ -37,6 +38,13 @@ class UserModel {
         await db.execute<ResultSetHeader>(
             'UPDATE users SET refreshToken = ? WHERE id = ?',
             [refreshToken, id]
+        );
+    }
+
+    static async revokeRefreshToken(id: number): Promise<void> {
+        await db.execute<ResultSetHeader>(
+            'UPDATE users SET revoked = TRUE WHERE id = ?',
+            [id]
         );
     }
 

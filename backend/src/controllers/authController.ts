@@ -49,7 +49,7 @@ const loginUser = async (req: Request, res: Response): Promise<Response> => {
 };
 
 const refreshAccessToken = async (req: Request, res: Response): Promise<Response> => {
-    const { refreshToken } = req.body;
+    const refreshToken = req.cookies.refreshToken; 
 
     if (!refreshToken) {
         return res.status(401).json({ message: 'Refresh token is required' });
@@ -60,11 +60,20 @@ const refreshAccessToken = async (req: Request, res: Response): Promise<Response
         const user = await UserModel.findByRefreshToken(refreshToken);
 
         if (!user) {
-            return res.status(403).json({ message: 'User not found' });
+            return res.status(403).json({ message: 'User not found or refresh token is invalid' });
+        }
+
+        if (user.revoked) {
+            return res.status(403).json({ message: 'Refresh token has been revoked' });
         }
 
         const payload = { id: user.id, email: user.email, role: user.role };
         const newAccessToken = signToken(payload, '1h');
+        const newRefreshToken = signRefreshToken(payload, '1d'); 
+        
+        await UserModel.updateRefreshToken(user.id, newRefreshToken);
+        
+        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
 
         return res.json({ token: newAccessToken });
     } catch (error) {
