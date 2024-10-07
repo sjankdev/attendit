@@ -7,6 +7,9 @@ export interface User {
   email: string;
   password: string; 
   role: string;
+  token?: string; 
+  refreshToken?: string; 
+  revoked?: boolean;  
+  
 }
-
 export default User;

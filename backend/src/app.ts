@@ -7,6 +7,8 @@ import authRoutes from './routes/authRoutes';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User as UserModelInterface } from './models/User';  
 import UserModel from './models/UserModel';  
+import jwt from 'jsonwebtoken';
+import { signToken, signRefreshToken } from './utils/jwtHelper';
 
 const app = express();
 
@@ -15,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use(session({
-    secret: 'your-secret-key',
+    secret: '01628b90ce3680876d820a4c60e62d8a',
     resave: false,
     saveUninitialized: true,
 }));
@@ -44,40 +46,44 @@ passport.deserializeUser(async (id: number, done) => {
     }
 });
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID!,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    callbackURL: "/auth/google/callback"
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const email = profile.emails && profile.emails[0].value;
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: '/auth/google/callback',
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0]?.value;
         if (!email) {
-            return done(new Error("No email found in Google profile"), false);
+          return done(new Error('No email found in Google profile'), false);
         }
 
-        
-        const existingUser = await UserModel.findByEmail(email);
-        if (existingUser) {
-            return done(null, existingUser);
-        }
-
-        const newUser = await UserModel.create(
+        let user = await UserModel.findByEmail(email);
+        if (!user) {
+          user = await UserModel.create(
             profile.name?.givenName || '',
             profile.name?.familyName || '',
             email,
             '', 
             'participant'
-        );
-
-        if (!newUser) {
-            return done(new Error("Failed to create user"), false);
+          );
         }
 
-        return done(null, newUser);
-    } catch (error) {
-        return done(error, false);
+        const payload = { id: user.id, email: user.email, role: user.role };
+        const token = signToken(payload, '1h');
+        const refreshToken = signRefreshToken(payload, '7d');
+
+        await UserModel.updateRefreshToken(user.id, refreshToken);
+
+        return done(null, { ...user, token, refreshToken });
+      } catch (error) {
+        return done(error);
+      }
     }
-}));
+  )
+);
 
 app.use('/api/auth', authRoutes);
 
@@ -85,10 +91,21 @@ app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/' }),
-    (req, res) => {
-        res.redirect('http://localhost:3000/home');  
-    }
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  async (req, res) => {
+      const user = req.user as any; 
+      const payload = { id: user.id, email: user.email, role: user.role };
+
+      const token = signToken(payload, '1h');
+      const refreshToken = signRefreshToken(payload, '7d');
+
+      await UserModel.updateRefreshToken(user.id, refreshToken);
+
+      console.log('Redirecting to:', `http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
+      res.redirect(`http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
+  }
 );
+
 export default app;

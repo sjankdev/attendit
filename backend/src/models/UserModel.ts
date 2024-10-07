@@ -17,7 +17,8 @@ class UserModel {
             lastName,
             email,
             password, 
-            role
+            role,
+            revoked: false
         } as User;
     }
 
@@ -31,6 +32,26 @@ class UserModel {
         const [rows] = await db.execute<RowDataPacket[]>('SELECT * FROM users WHERE id = ?', [id]);
         const user = rows[0] as User;
         return user || null;
+    }
+
+    static async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
+        await db.execute<ResultSetHeader>(
+            'UPDATE users SET refreshToken = ? WHERE id = ?',
+            [refreshToken, id]
+        );
+    }
+
+    static async revokeRefreshToken(id: number): Promise<void> {
+        await db.execute<ResultSetHeader>(
+            'UPDATE users SET revoked = TRUE WHERE id = ?',
+            [id]
+        );
+    }
+
+    static async findByRefreshToken(refreshToken: string): Promise<User | null> {
+        const [rows] = await db.execute<RowDataPacket[]>('SELECT * FROM users WHERE refreshToken = ?', [refreshToken]);
+        const user = rows[0] as User; 
+        return user || null; 
     }
 }
 

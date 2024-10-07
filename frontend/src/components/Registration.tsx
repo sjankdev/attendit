@@ -18,6 +18,11 @@ const Registration: React.FC = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', data);
             alert(response.data.message);
+    
+            if (response.data.token && response.data.refreshToken) {
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('refreshToken', response.data.refreshToken);
+            }
         } catch (error: any) {
             if (error.response) {
                 console.error(error.response.data);
