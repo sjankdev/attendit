@@ -8,7 +8,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User as UserModelInterface } from './models/User';  
 import UserModel from './models/UserModel';  
 import jwt from 'jsonwebtoken';
-import { signToken } from './utils/jwtHelper';
+import { signToken, signRefreshToken } from './utils/jwtHelper';
 
 const app = express();
 
@@ -72,9 +72,12 @@ passport.use(
         }
 
         const payload = { id: user.id, email: user.email, role: user.role };
-        const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+        const token = signToken(payload, '1h');
+        const refreshToken = signRefreshToken(payload, '7d');
 
-        return done(null, { ...user, token });
+        await UserModel.updateRefreshToken(user.id, refreshToken);
+
+        return done(null, { ...user, token, refreshToken });
       } catch (error) {
         return done(error);
       }
@@ -91,13 +94,17 @@ app.get('/auth/google',
 app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
+  async (req, res) => {
       const user = req.user as any; 
       const payload = { id: user.id, email: user.email, role: user.role };
+
       const token = signToken(payload, '1h');
-      
-      console.log('Redirecting to:', `http://localhost:3000/home?token=${token}`);
-      res.redirect(`http://localhost:3000/home?token=${token}`);
+      const refreshToken = signRefreshToken(payload, '7d');
+
+      await UserModel.updateRefreshToken(user.id, refreshToken);
+
+      console.log('Redirecting to:', `http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
+      res.redirect(`http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
   }
 );
 

@@ -32,6 +32,19 @@ class UserModel {
         const user = rows[0] as User;
         return user || null;
     }
+
+    static async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
+        await db.execute<ResultSetHeader>(
+            'UPDATE users SET refreshToken = ? WHERE id = ?',
+            [refreshToken, id]
+        );
+    }
+
+    static async findByRefreshToken(refreshToken: string): Promise<User | null> {
+        const [rows] = await db.execute<RowDataPacket[]>('SELECT * FROM users WHERE refreshToken = ?', [refreshToken]);
+        const user = rows[0] as User; 
+        return user || null; 
+    }
 }
 
 export default UserModel;

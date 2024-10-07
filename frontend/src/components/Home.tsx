@@ -30,22 +30,21 @@ const Home = () => {
 
     const handleLogout = async () => {
         try {
-            
             await fetch('/api/auth/logout', {
-                method: 'GET',
-                credentials: 'include', 
+                method: 'POST', 
+                credentials: 'include',
             });
-
-            
+    
             localStorage.removeItem('token');
-            console.log('User logged out, token removed from localStorage.');
-
+            localStorage.removeItem('refreshToken'); 
+            console.log('User logged out, tokens removed from localStorage.');
+    
             navigate('/');
         } catch (error) {
             console.error('Logout failed:', error);
         }
     };
-
+    
     if (!isTokenChecked) {
         return <div>Loading...</div>; 
     }

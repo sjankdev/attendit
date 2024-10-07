@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { validateRegistration, handleValidationErrors } from '../middleware/validateInput';
-import { registerUser } from '../controllers/authController';
+import { registerUser, loginUser, refreshAccessToken } from '../controllers/authController';
+import UserModel from '../models/UserModel';
 
 const router = express.Router();
 
@@ -17,18 +18,29 @@ router.post('/register', validateRegistration, handleValidationErrors, async (re
   await registerUser(req, res);
 });
 
-router.get('/logout', (req, res) => {
-  req.logout((err) => {
-      if (err) {
-          return res.status(500).send('Logout failed');
-      }
-      req.session.destroy((err) => {
+router.post('/login', async (req: Request, res: Response) => {
+  await loginUser(req, res);
+});
+
+router.post('/refresh-token', async (req: Request, res: Response) => {
+  await refreshAccessToken(req, res);
+});
+
+router.get('/logout', async (req, res) => {
+  if (req.isAuthenticated()) {
+      const userId = req.user.id; 
+
+      await UserModel.updateRefreshToken(userId, null);
+
+      req.logout((err) => {
           if (err) {
-              return res.status(500).send('Session destruction failed');
+              return res.status(500).json({ message: 'Could not log out' });
           }
-          res.redirect('/');
+          res.status(200).json({ message: 'Logged out successfully' });
       });
-  });
+  } else {
+      res.status(401).json({ message: 'Not authenticated' });
+  }
 });
 
 export default router;
