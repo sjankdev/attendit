@@ -26,6 +26,10 @@ const Registration: React.FC = () => {
         }
     };
 
+    const handleGoogleLogin = () => {
+        window.location.href = 'http://localhost:5000/auth/google';
+    };
+
     return (
         <div>
             <h2>Register</h2>
@@ -78,6 +82,11 @@ const Registration: React.FC = () => {
                 {serverError && <p style={{ color: 'red' }}>{serverError}</p>}
                 <button type="submit">Register</button>
             </form>
+
+            <div>
+                <h3>Or sign in with:</h3>
+                <button onClick={handleGoogleLogin}>Sign in with Google</button>
+            </div>
         </div>
     );
 };
