@@ -17,4 +17,18 @@ router.post('/register', validateRegistration, handleValidationErrors, async (re
   await registerUser(req, res);
 });
 
+router.get('/logout', (req, res) => {
+  req.logout((err) => {
+      if (err) {
+          return res.status(500).send('Logout failed');
+      }
+      req.session.destroy((err) => {
+          if (err) {
+              return res.status(500).send('Session destruction failed');
+          }
+          res.redirect('/'); 
+      });
+  });
+});
+
 export default router;

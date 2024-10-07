@@ -28,6 +28,24 @@ const Home = () => {
         }
     }, [navigate]);
 
+    const handleLogout = async () => {
+        try {
+            
+            await fetch('/api/auth/logout', {
+                method: 'GET',
+                credentials: 'include', 
+            });
+
+            
+            localStorage.removeItem('token');
+            console.log('User logged out, token removed from localStorage.');
+
+            navigate('/');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
     if (!isTokenChecked) {
         return <div>Loading...</div>; 
     }
@@ -35,6 +53,7 @@ const Home = () => {
     return (
         <div>
             <h1>Welcome Home</h1>
+            <button onClick={handleLogout}>Logout</button>
         </div>
     );
 };
