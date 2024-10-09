@@ -26,23 +26,43 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
   await refreshAccessToken(req, res);
 });
 
-router.get('/logout', async (req, res) => {
-  if (req.isAuthenticated()) {
-      const userId = req.user.id; 
+router.get('/verify', async (req: Request, res: Response) => {
+  const { token } = req.query;
 
-      await UserModel.updateRefreshToken(userId, null); 
-      await UserModel.revokeRefreshToken(userId); 
+  if (!token) {
+    return res.status(400).json({ message: 'Verification token is required' });
+  }
 
-      req.logout((err) => {
-          if (err) {
-              return res.status(500).json({ message: 'Could not log out' });
-          }
-          res.status(200).json({ message: 'Logged out successfully' });
-      });
-  } else {
-      res.status(401).json({ message: 'Not authenticated' });
+  try {
+    const user = await UserModel.findByVerificationToken(token as string);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found or token is invalid' });
+    }
+
+    await UserModel.verifyUser(user.id);
+    return res.status(200).json({ message: 'Email verified successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 
+router.get('/logout', async (req: Request, res: Response) => {
+  if (req.isAuthenticated()) {
+    const userId = req.user.id;
+
+    await UserModel.updateRefreshToken(userId, null);
+    await UserModel.revokeRefreshToken(userId);
+
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Could not log out' });
+      }
+      res.status(200).json({ message: 'Logged out successfully' });
+    });
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+});
 
 export default router;
