@@ -18,7 +18,7 @@ const Registration: React.FC = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/auth/register', data);
             alert(response.data.message);
-    
+
             if (response.data.token && response.data.refreshToken) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -91,6 +91,9 @@ const Registration: React.FC = () => {
             <div>
                 <h3>Or sign in with:</h3>
                 <button onClick={handleGoogleLogin}>Sign in with Google</button>
+            </div>
+            <div>
+                <p>Already have an account? <a href="/login">Login here</a></p>
             </div>
         </div>
     );
