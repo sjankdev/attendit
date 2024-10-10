@@ -1,16 +1,12 @@
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 0;
+.verification-page {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    background-color: #f4f4f4;
 }
 
-.container {
+.verification-container {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -19,13 +15,17 @@ body {
     text-align: center;
 }
 
-h2 {
+.verification-header {
     margin: 0 0 20px;
     font-size: 1.5em;
     color: #2c3e50;
 }
 
-input[type="email"] {
+.verification-message {
+    margin: 10px 0;
+}
+
+.email-input {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
@@ -35,12 +35,12 @@ input[type="email"] {
     transition: border-color 0.3s;
 }
 
-input[type="email"]:focus {
+.email-input:focus {
     border-color: #3498db;
     outline: none;
 }
 
-button {
+.resend-button {
     background-color: #3498db;
     color: #ffffff;
     border: none;
@@ -51,30 +51,11 @@ button {
     transition: background-color 0.3s;
 }
 
-button:hover {
+.resend-button:hover {
     background-color: #2980b9;
 }
 
-.resend-verification {
+.verification-status {
     margin-top: 20px;
-}
-
-.register-prompt {
-    margin-top: 20px;
-    font-size: 0.9em;
-}
-
-.register-button {
-    background: none;
-    border: none;
-    color: #3498db;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.register-button:hover {
-    color: #2980b9;
-}
-p {
-    margin: 10px 0;
+    font-size: 1.2em;
 }
