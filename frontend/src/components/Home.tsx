@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../assets/css/Home.css';
 
 const Home = () => {
     const navigate = useNavigate();
@@ -39,20 +40,25 @@ const Home = () => {
             localStorage.removeItem('refreshToken'); 
             console.log('User logged out, tokens removed from localStorage.');
     
-            navigate('/');
+            navigate('/login');
         } catch (error) {
             console.error('Logout failed:', error);
         }
     };
     
     if (!isTokenChecked) {
-        return <div>Loading...</div>; 
+        return <div className="loading">Loading...</div>; 
     }
 
     return (
         <div>
-            <h1>Welcome Home</h1>
-            <button onClick={handleLogout}>Logout</button>
+            <div className="logout-wrapper">
+                <button onClick={handleLogout} className="logout-button">Logout</button>
+            </div>
+            <div className="home-container">
+                <h1>Welcome Home</h1>
+                <p>Explore our event management tools to streamline your planning process.</p>
+            </div>
         </div>
     );
 };
