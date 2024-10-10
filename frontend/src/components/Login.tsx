@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../assets/css/Login.css';
 
 interface LoginForm {
     email: string;
@@ -26,9 +27,10 @@ const Login: React.FC = () => {
                 setServerError('Invalid login credentials');
             }
         } catch (error: any) {
-            setServerError('Invalid email or password');
-            if (error.response.status === 403) {
+            if (error.response?.status === 403) {
                 setEmailForResend(data.email);
+            } else {
+                setServerError('Invalid email or password');
             }
         }
     };
@@ -43,34 +45,48 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div>
+        <div className="login-container">
             <h2>Login</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>Email:</label>
+            <form className="login-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
                     <input
                         type="email"
+                        id="email"
                         {...register("email", { required: "Email is required" })}
+                        autoComplete="email"
+                        aria-describedby="emailError"
                     />
-                    {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
+                    {errors.email && <p id="emailError" className="error-message">{errors.email.message}</p>}
                 </div>
-                <div>
-                    <label>Password:</label>
+                <div className="form-group">
+                    <label htmlFor="password">Password:</label>
                     <input
                         type="password"
+                        id="password"
                         {...register("password", { required: "Password is required" })}
+                        autoComplete="current-password"
+                        aria-describedby="passwordError"
                     />
-                    {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
+                    {errors.password && <p id="passwordError" className="error-message">{errors.password.message}</p>}
                 </div>
-                {serverError && <p style={{ color: 'red' }}>{serverError}</p>}
-                <button type="submit">Login</button>
+
+                {serverError && !emailForResend && <p className="server-error">{serverError}</p>}
+
+                <button type="submit" className="submit-button">Login</button>
             </form>
+
             {emailForResend && (
-                <div>
+                <div className="resend-verification">
                     <p>Your account is not verified. Click below to resend the verification email:</p>
-                    <button onClick={handleResendVerification}>Resend Verification Email</button>
+                    <button type="button" onClick={handleResendVerification} className="resend-button">Resend Verification Email</button>
                 </div>
             )}
+
+            <p className="register-prompt">
+                Don't have an account?
+                <button onClick={() => navigate('/register')} className="register-button">Register now</button>
+            </p>
         </div>
     );
 };
