@@ -39,7 +39,7 @@ const Home = () => {
             localStorage.removeItem('refreshToken'); 
             console.log('User logged out, tokens removed from localStorage.');
     
-            navigate('/');
+            navigate('/login');
         } catch (error) {
             console.error('Logout failed:', error);
         }
