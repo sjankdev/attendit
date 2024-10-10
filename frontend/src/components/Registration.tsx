@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
+import '../assets/css/Registration.css';
 
 interface RegistrationForm {
     firstName: string;
@@ -36,33 +37,43 @@ const Registration: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Register</h2>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>First Name:</label>
+        <div className="registration-container">
+            <h2>Join Our Event Management Community</h2>
+            <p>Streamline your event planning and invitations!</p>
+            <form className="registration-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+                <div className="form-group">
+                    <label htmlFor="firstName">First Name:</label>
                     <input
                         type="text"
+                        id="firstName"
                         {...register("firstName", {
                             required: "First name is required"
                         })}
+                        autoComplete="given-name"
+                        aria-describedby="firstNameError"
                     />
-                    {errors.firstName && <p style={{ color: 'red' }}>{errors.firstName.message}</p>}
+                    {errors.firstName && <p id="firstNameError" className="error-message">{errors.firstName.message}</p>}
                 </div>
-                <div>
-                    <label>Last Name:</label>
+
+                <div className="form-group">
+                    <label htmlFor="lastName">Last Name:</label>
                     <input
                         type="text"
+                        id="lastName"
                         {...register("lastName", {
                             required: "Last name is required"
                         })}
+                        autoComplete="family-name"
+                        aria-describedby="lastNameError"
                     />
-                    {errors.lastName && <p style={{ color: 'red' }}>{errors.lastName.message}</p>}
+                    {errors.lastName && <p id="lastNameError" className="error-message">{errors.lastName.message}</p>}
                 </div>
-                <div>
-                    <label>Email:</label>
+
+                <div className="form-group">
+                    <label htmlFor="email">Email:</label>
                     <input
                         type="email"
+                        id="email"
                         {...register("email", {
                             required: "Email is required",
                             pattern: {
@@ -70,31 +81,35 @@ const Registration: React.FC = () => {
                                 message: "Invalid email format"
                             }
                         })}
+                        autoComplete="email"
+                        aria-describedby="emailError"
                     />
-                    {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
+                    {errors.email && <p id="emailError" className="error-message">{errors.email.message}</p>}
                 </div>
-                <div>
-                    <label>Password:</label>
+
+                <div className="form-group">
+                    <label htmlFor="password">Password:</label>
                     <input
                         type="password"
+                        id="password"
                         {...register("password", {
                             required: "Password is required",
                             minLength: { value: 6, message: "Password must be at least 6 characters long" }
                         })}
+                        autoComplete="new-password"
+                        aria-describedby="passwordError"
                     />
-                    {errors.password && <p style={{ color: 'red' }}>{errors.password.message}</p>}
+                    {errors.password && <p id="passwordError" className="error-message">{errors.password.message}</p>}
                 </div>
-                {serverError && <p style={{ color: 'red' }}>{serverError}</p>}
-                <button type="submit">Register</button>
+
+                {serverError && <p className="server-error">{serverError}</p>}
+                <button type="submit" className="submit-button">Register</button>
             </form>
 
-            <div>
-                <h3>Or sign in with:</h3>
-                <button onClick={handleGoogleLogin}>Sign in with Google</button>
-            </div>
-            <div>
-                <p>Already have an account? <a href="/login">Login here</a></p>
-            </div>
+            <h3>Or sign in with:</h3>
+            <button type="button" onClick={handleGoogleLogin} className="google-button">Sign in with Google</button>
+
+            <p>Already have an account? <a href="/login">Login here</a></p>
         </div>
     );
 };

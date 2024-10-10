@@ -10,7 +10,6 @@ const App: React.FC = () => {
     return (
         <Router>
             <div>
-                <h1>Welcome to AttendIt</h1>
                 <Routes>
                     <Route path="/" element={<Registration />} />
                     <Route path="/login" element={<Login />} />
