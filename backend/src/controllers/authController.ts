@@ -29,6 +29,26 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
+const resendVerificationEmail = async (req: Request, res: Response): Promise<Response> => {
+    const { email } = req.body;
+
+    try {
+        const user = await UserModel.findByEmail(email);
+        if (!user || user.isVerified) {
+            return res.status(400).json({ success: false, message: 'User not found or already verified.' });
+        }
+
+        const verificationToken = uuidv4();
+        await UserModel.updateVerificationToken(user.id, verificationToken);
+        await sendVerificationEmail(email, verificationToken);
+
+        return res.status(200).json({ success: true, message: 'Verification email resent successfully.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server error', error: (error as Error).message });
+    }
+};
+
 const loginUser = async (req: Request, res: Response): Promise<Response> => {
     const { email, password } = req.body;
     const user = await UserModel.findByEmail(email);
@@ -88,4 +108,4 @@ const refreshAccessToken = async (req: Request, res: Response): Promise<Response
     }
 };
 
-export { registerUser, loginUser, refreshAccessToken };
+export { registerUser, loginUser, refreshAccessToken, resendVerificationEmail };

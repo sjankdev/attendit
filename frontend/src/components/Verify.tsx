@@ -15,8 +15,9 @@ const Verify: React.FC = () => {
                 alert('Email verified successfully! You can now log in.');
                 navigate('/login');
             } catch (error) {
-                alert('Email verification failed. Please try again.');
+                alert('Email verification failed. The link may be expired. Please request a new verification email.');
                 console.error(error);
+                navigate('/login'); 
             }
         };
 

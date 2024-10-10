@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import { validateRegistration, handleValidationErrors } from '../middleware/validateInput';
 import { registerUser, loginUser, refreshAccessToken } from '../controllers/authController';
 import UserModel from '../models/UserModel';
-
+import { resendVerificationEmail } from '../controllers/authController';
 const router = express.Router();
 
 interface RegisterRequest extends Request {
@@ -46,6 +46,8 @@ router.get('/verify', async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/resend-verification', resendVerificationEmail);
 
 router.get('/logout', async (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
