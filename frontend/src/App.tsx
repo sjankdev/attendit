@@ -4,6 +4,7 @@ import Registration from './components/Registration';
 import Home from './components/Home'; 
 
 import Login from './components/Login';  
+import Verify from './components/Verify';
 
 const App: React.FC = () => {
     return (
@@ -12,8 +13,9 @@ const App: React.FC = () => {
                 <h1>Welcome to AttendIt</h1>
                 <Routes>
                     <Route path="/" element={<Registration />} />
-                    <Route path="/login" element={<Login />} />  
+                    <Route path="/login" element={<Login />} />
                     <Route path="/home" element={<Home />} />
+                    <Route path="/verify" element={<Verify />} />
                 </Routes>
             </div>
         </Router>

@@ -12,6 +12,7 @@ const Login: React.FC = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
     const [serverError, setServerError] = useState<string>('');
     const navigate = useNavigate();
+    const [emailForResend, setEmailForResend] = useState<string>('');
 
     const onSubmit: SubmitHandler<LoginForm> = async (data) => {
         setServerError('');
@@ -26,6 +27,18 @@ const Login: React.FC = () => {
             }
         } catch (error: any) {
             setServerError('Invalid email or password');
+            if (error.response.status === 403) {
+                setEmailForResend(data.email);
+            }
+        }
+    };
+
+    const handleResendVerification = async () => {
+        try {
+            await axios.post('http://localhost:5000/api/auth/resend-verification', { email: emailForResend });
+            alert('Verification email resent successfully.');
+        } catch (error) {
+            alert('Failed to resend verification email.');
         }
     };
 
@@ -52,6 +65,12 @@ const Login: React.FC = () => {
                 {serverError && <p style={{ color: 'red' }}>{serverError}</p>}
                 <button type="submit">Login</button>
             </form>
+            {emailForResend && (
+                <div>
+                    <p>Your account is not verified. Click below to resend the verification email:</p>
+                    <button onClick={handleResendVerification}>Resend Verification Email</button>
+                </div>
+            )}
         </div>
     );
 };
