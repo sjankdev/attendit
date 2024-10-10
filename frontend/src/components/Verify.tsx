@@ -41,23 +41,31 @@ const Verify: React.FC = () => {
     };
 
     return (
-        <div className="container">
-            {verificationFailed ? (
-                <div>
-                    <h2>Email Verification</h2>
-                    <p>Your verification link has expired.<br />Please enter your email to resend the verification email:</p>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                    />
-                    <button onClick={handleResendVerification}>Resend Verification Email</button>
-                </div>
-            ) : (
-                <h2>Verifying your email...</h2>
-            )}
+        <div className="verification-page">
+            <div className="verification-container">
+                {verificationFailed ? (
+                    <div className="verification-failed">
+                        <h2 className="verification-header">Email Verification</h2>
+                        <p className="verification-message">
+                            Your verification link has expired.<br />
+                            Please enter your email to resend the verification email:
+                        </p>
+                        <input
+                            type="email"
+                            className="email-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your email"
+                            required
+                        />
+                        <button className="resend-button" onClick={handleResendVerification}>
+                            Resend Verification Email
+                        </button>
+                    </div>
+                ) : (
+                    <h2 className="verification-status">Verifying your email...</h2>
+                )}
+            </div>
         </div>
     );
 };
