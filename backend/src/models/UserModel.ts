@@ -5,7 +5,7 @@ import User from './User';
 class UserModel {
 
     static async create(firstName: string, lastName: string, email: string, password: string, role: string, verificationToken: string): Promise<User> {
-        const verificationTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
         const [result] = await db.execute<ResultSetHeader>(
             'INSERT INTO users (firstName, lastName, email, password, role, verificationToken, verificationTokenExpiresAt, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -35,7 +35,7 @@ class UserModel {
     }
 
     static async updateVerificationToken(id: number, verificationToken: string): Promise<void> {
-        const verificationTokenExpiresAt = new Date(Date.now() + 60 * 1000);
+        const verificationTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
         await db.execute<ResultSetHeader>(
             'UPDATE users SET verificationToken = ?, verificationTokenExpiresAt = ? WHERE id = ?',
             [verificationToken, verificationTokenExpiresAt, id]
