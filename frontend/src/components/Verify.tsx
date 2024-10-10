@@ -24,7 +24,7 @@ const Verify: React.FC = () => {
         if (token) {
             verifyEmail();
         } else {
-            navigate('/');
+            navigate('/login');
         }
     }, [navigate]);
 

@@ -85,7 +85,7 @@ const Login: React.FC = () => {
 
             <p className="register-prompt">
                 Don't have an account?
-                <button onClick={() => navigate('/')} className="register-button">Register now</button>
+                <button onClick={() => navigate('/register')} className="register-button">Register now</button>
             </p>
         </div>
     );
