@@ -6,17 +6,41 @@ class JwtTokenModel {
 
     static async create(userId: number, token: string, refreshToken: string): Promise<JwtToken> {
         const [result] = await db.execute<ResultSetHeader>(
-            'INSERT INTO jwt_tokens (userId, token, refreshToken) VALUES (?, ?, ?)',
+            'INSERT INTO jwt_tokens (userId, token, refreshToken) VALUES (?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE token = VALUES(token), refreshToken = VALUES(refreshToken)',
             [userId, token, refreshToken]
         );
 
-        const insertId = result.insertId as number;
+        const insertId = result.insertId;
+
+        if (insertId === 0) {
+            const existingToken = await this.findByUserId(userId);
+            if (existingToken) {
+                return existingToken;
+            }
+        }
 
         return {
-            id: insertId,
+            id: insertId || 0,
             userId,
             token,
             refreshToken,
+        } as JwtToken;
+    }
+
+    static async findByUserId(userId: number): Promise<JwtToken | null> {
+        const [rows] = await db.execute<RowDataPacket[]>(
+            'SELECT * FROM jwt_tokens WHERE userId = ?',
+            [userId]
+        );
+
+        if (rows.length === 0) return null;
+
+        return {
+            id: rows[0].id,
+            userId: rows[0].userId,
+            token: rows[0].token,
+            refreshToken: rows[0].refreshToken,
         } as JwtToken;
     }
 
@@ -45,8 +69,9 @@ class JwtTokenModel {
 
     static async updateRefreshToken(userId: number, token: string | null, refreshToken: string | null): Promise<void> {
         await db.execute<ResultSetHeader>(
-            'INSERT INTO jwt_tokens (userId, token, refreshToken) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE token = ?, refreshToken = ?',
-            [userId, token, refreshToken, token, refreshToken]
+            'INSERT INTO jwt_tokens (userId, token, refreshToken) VALUES (?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE token = VALUES(token), refreshToken = VALUES(refreshToken), updatedAt = CURRENT_TIMESTAMP',
+            [userId, token, refreshToken]
         );
     }
 }

@@ -54,7 +54,7 @@ router.get('/logout', async (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
     const userId = req.user.id;
 
-    await JwtTokenModel.update(userId, null, null);
+    await JwtTokenModel.updateRefreshToken(userId, null, null);
 
     req.logout((err) => {
       if (err) {
