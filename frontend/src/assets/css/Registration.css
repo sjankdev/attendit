@@ -104,9 +104,6 @@ p a:hover {
     text-decoration: underline;
 }
 
-/* Add this to your existing CSS */
-
-/* Style the role dropdown */
 .role-group {
     margin-bottom: 20px;
 }
