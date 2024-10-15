@@ -3,6 +3,7 @@ import { validateRegistration, handleValidationErrors } from '../middleware/vali
 import { registerUser, loginUser, refreshAccessToken } from '../controllers/authController';
 import UserModel from '../models/UserModel';
 import { resendVerificationEmail } from '../controllers/authController';
+import JwtTokenModel from '../models/JwtTokenModel';
 const router = express.Router();
 
 interface RegisterRequest extends Request {
@@ -53,8 +54,7 @@ router.get('/logout', async (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
     const userId = req.user.id;
 
-    await UserModel.updateRefreshToken(userId, null);
-    await UserModel.revokeRefreshToken(userId);
+    await JwtTokenModel.updateRefreshToken(userId, null, null);
 
     req.logout((err) => {
       if (err) {

@@ -1,15 +1,12 @@
 import db from '../config/db';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
-import User from './User';
+import { User } from './User';
 
 class UserModel {
-
-    static async create(firstName: string, lastName: string, email: string, password: string, role: string, verificationToken: string): Promise<User> {
-        const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
+    static async create(firstName: string, lastName: string, email: string, password: string, role: string): Promise<User> {
         const [result] = await db.execute<ResultSetHeader>(
-            'INSERT INTO users (firstName, lastName, email, password, role, verificationToken, verificationTokenExpiresAt, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [firstName, lastName, email, password, role, verificationToken, verificationTokenExpiresAt, false]
+            'INSERT INTO users (firstName, lastName, email, password, role, isVerified) VALUES (?, ?, ?, ?, ?, ?)',
+            [firstName, lastName, email, password, role, false]
         );
 
         const insertId = result.insertId as number;
@@ -21,15 +18,15 @@ class UserModel {
             email,
             password,
             role,
-            revoked: false,
-            verificationToken,
-            verificationTokenExpiresAt,
             isVerified: false
         } as User;
     }
 
     static async findByVerificationToken(token: string): Promise<User | null> {
-        const [rows] = await db.execute<RowDataPacket[]>('SELECT * FROM users WHERE verificationToken = ? AND verificationTokenExpiresAt > NOW()', [token]);
+        const [rows] = await db.execute<RowDataPacket[]>(
+            'SELECT u.* FROM users u JOIN email_verifications ev ON u.id = ev.userId WHERE ev.verificationToken = ? AND ev.verificationTokenExpiresAt > NOW()',
+            [token]
+        );
         const user = rows[0] as User;
         return user || null;
     }
@@ -44,7 +41,14 @@ class UserModel {
 
     static async verifyUser(id: number): Promise<void> {
         await db.execute<ResultSetHeader>(
-            'UPDATE users SET verificationToken = NULL, isVerified = TRUE WHERE id = ?',
+            'UPDATE users SET isVerified = TRUE WHERE id = ?',
+            [id]
+        );
+    }
+
+    static async setVerified(id: number): Promise<void> {
+        await db.execute<ResultSetHeader>(
+            'UPDATE users SET isVerified = TRUE WHERE id = ?',
             [id]
         );
     }
@@ -59,20 +63,6 @@ class UserModel {
         const [rows] = await db.execute<RowDataPacket[]>('SELECT * FROM users WHERE id = ?', [id]);
         const user = rows[0] as User;
         return user || null;
-    }
-
-    static async updateRefreshToken(id: number, refreshToken: string | null): Promise<void> {
-        await db.execute<ResultSetHeader>(
-            'UPDATE users SET refreshToken = ? WHERE id = ?',
-            [refreshToken, id]
-        );
-    }
-
-    static async revokeRefreshToken(id: number): Promise<void> {
-        await db.execute<ResultSetHeader>(
-            'UPDATE users SET revoked = TRUE WHERE id = ?',
-            [id]
-        );
     }
 
     static async findByRefreshToken(refreshToken: string): Promise<User | null> {

@@ -1,4 +1,3 @@
-
 export interface User {
   id: number;
   firstName: string;
@@ -6,12 +5,5 @@ export interface User {
   email: string;
   password: string;
   role: string;
-  token?: string;
-  refreshToken?: string;
-  revoked?: boolean;
-  verificationToken?: string;
-  isVerified?: boolean;
-  verificationTokenExpiresAt?: Date;
+  isVerified: boolean;
 }
-
-export default User;

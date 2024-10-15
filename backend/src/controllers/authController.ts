@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import UserModel from '../models/UserModel';
+import JwtTokenModel from '../models/JwtTokenModel';
+import EmailVerificationModel from '../models/EmailVerificationModel';
 import { signToken, signRefreshToken, verifyRefreshToken } from '../utils/jwtHelper';
 import { v4 as uuidv4 } from 'uuid';
 import { sendVerificationEmail } from '../utils/mailer';
@@ -15,12 +17,15 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await UserModel.create(firstName, lastName, email, hashedPassword, role);
+
         const verificationToken = uuidv4();
-        const user = await UserModel.create(firstName, lastName, email, hashedPassword, role, verificationToken);
+        const verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        await EmailVerificationModel.create(user.id, verificationToken, verificationTokenExpiresAt);
 
         await sendVerificationEmail(email, verificationToken);
 
-        const { password: _, verificationToken: __, ...userWithoutPassword } = user;
+        const { password: _, ...userWithoutPassword } = user;
 
         return res.status(201).json({ success: true, message: 'User registered successfully. Please check your email to verify your account.', user: userWithoutPassword });
     } catch (error) {
@@ -39,7 +44,7 @@ const resendVerificationEmail = async (req: Request, res: Response): Promise<Res
         }
 
         const verificationToken = uuidv4();
-        await UserModel.updateVerificationToken(user.id, verificationToken);
+        await EmailVerificationModel.updateToken(user.id, verificationToken);
         await sendVerificationEmail(email, verificationToken);
 
         return res.status(200).json({ success: true, message: 'Verification email resent successfully.' });
@@ -52,7 +57,6 @@ const resendVerificationEmail = async (req: Request, res: Response): Promise<Res
 const loginUser = async (req: Request, res: Response): Promise<Response> => {
     const { email, password } = req.body;
     const user = await UserModel.findByEmail(email);
-
 
     if (!user) {
         return res.status(401).json({ message: 'Invalid email or password' });
@@ -67,7 +71,7 @@ const loginUser = async (req: Request, res: Response): Promise<Response> => {
         const token = signToken(payload, '1h');
         const refreshToken = signRefreshToken(payload, '7d');
 
-        await UserModel.updateRefreshToken(user.id, refreshToken);
+        await JwtTokenModel.create(user.id, token, refreshToken);
 
         return res.json({ token, refreshToken });
     }
@@ -83,22 +87,20 @@ const refreshAccessToken = async (req: Request, res: Response): Promise<Response
     }
 
     try {
-        const decoded = verifyRefreshToken(refreshToken);
-        const user = await UserModel.findByRefreshToken(refreshToken);
+
+        const decoded = verifyRefreshToken(refreshToken) as { id: number };
+
+        const user = await UserModel.findById(decoded.id);
 
         if (!user) {
             return res.status(403).json({ message: 'User not found or refresh token is invalid' });
         }
 
-        if (user.revoked) {
-            return res.status(403).json({ message: 'Refresh token has been revoked' });
-        }
-
         const payload = { id: user.id, email: user.email, role: user.role };
         const newAccessToken = signToken(payload, '1h');
-        const newRefreshToken = signRefreshToken(payload, '1d');
+        const newRefreshToken = signRefreshToken(payload, '7d');
 
-        await UserModel.updateRefreshToken(user.id, newRefreshToken);
+        await JwtTokenModel.update(user.id, newAccessToken, newRefreshToken);
 
         res.cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true, sameSite: 'strict' });
 
