@@ -75,13 +75,15 @@ passport.use(
             "participant"
           );
 
+          await UserModel.setVerified(user.id);
           await ParticipantModel.create(user.id);
         } else {
           await UserModel.setVerified(user.id);
         }
 
+        const googleUser: GoogleUser = { ...user, firstTime: !user.roleChosen };
+
         if (!user.roleChosen) {
-          const googleUser: GoogleUser = { ...user, firstTime: true };
           return done(null, googleUser);
         } else {
           return done(null, user);
@@ -113,7 +115,7 @@ app.get(
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
     res.redirect(
-      `http://localhost:3000/select-role?token=${token}&refreshToken=${refreshToken}&userId=${
+      `http:
         user.id
       }&firstTime=${!user.roleChosen}`
     );
