@@ -7,9 +7,8 @@ import authRoutes from './routes/authRoutes';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User as UserModelInterface } from './models/User';
 import UserModel from './models/UserModel';
-import jwt from 'jsonwebtoken';
 import { signToken, signRefreshToken } from './utils/jwtHelper';
-import { v4 as uuidv4 } from 'uuid';
+import JwtTokenModel from './models/JwtTokenModel';
 
 const app = express();
 
@@ -63,24 +62,19 @@ passport.use(
 
         let user = await UserModel.findByEmail(email);
         if (!user) {
-          const verificationToken = uuidv4();
           user = await UserModel.create(
             profile.name?.givenName || '',
             profile.name?.familyName || '',
             email,
             '',
-            'participant',
-            verificationToken
+            'participant'
           );
         }
 
-        const payload = { id: user.id, email: user.email, role: user.role };
-        const token = signToken(payload, '1h');
-        const refreshToken = signRefreshToken(payload, '7d');
+        await UserModel.setVerified(user.id);
 
-        await UserModel.updateRefreshToken(user.id, refreshToken);
+        return done(null, user);
 
-        return done(null, { ...user, token, refreshToken });
       } catch (error) {
         return done(error);
       }
@@ -104,7 +98,7 @@ app.get(
     const token = signToken(payload, '1h');
     const refreshToken = signRefreshToken(payload, '7d');
 
-    await UserModel.updateRefreshToken(user.id, refreshToken);
+    await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
     console.log('Redirecting to:', `http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
     res.redirect(`http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`);
