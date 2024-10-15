@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import passport from "passport";
@@ -10,6 +10,8 @@ import UserModel from "./models/UserModel";
 import { signToken, signRefreshToken } from "./utils/jwtHelper";
 import JwtTokenModel from "./models/JwtTokenModel";
 import ParticipantModel from "./models/ParticipantModel";
+import AdminModel from "./models/AdminModel";
+import { GoogleUser } from "./models/GoogleUser";
 
 const app = express();
 
@@ -74,11 +76,16 @@ passport.use(
           );
 
           await ParticipantModel.create(user.id);
+        } else {
+          await UserModel.setVerified(user.id);
         }
 
-        await UserModel.setVerified(user.id);
-
-        return done(null, user);
+        if (!user.roleChosen) {
+          const googleUser: GoogleUser = { ...user, firstTime: true };
+          return done(null, googleUser);
+        } else {
+          return done(null, user);
+        }
       } catch (error) {
         return done(error);
       }
@@ -105,14 +112,55 @@ app.get(
 
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
-    console.log(
-      "Redirecting to:",
-      `http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`
-    );
     res.redirect(
-      `http://localhost:3000/home?token=${token}&refreshToken=${refreshToken}`
+      `http://localhost:3000/select-role?token=${token}&refreshToken=${refreshToken}&userId=${
+        user.id
+      }&firstTime=${!user.roleChosen}`
     );
   }
 );
+
+const roleSelectionRouter = Router();
+
+roleSelectionRouter.post("/select-role", async (req, res) => {
+  const { userId, role } = req.body;
+
+  try {
+    if (!userId || !role) {
+      return res.status(400).json({ message: "User ID and role are required" });
+    }
+
+    const exists = await UserModel.userExists(userId);
+    if (!exists) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await UserModel.updateRole(userId, role);
+
+    await UserModel.setRoleChosen(userId);
+
+    if (role === "admin") {
+      const adminEntryExists = await AdminModel.findByUserId(userId);
+      if (!adminEntryExists) {
+        await AdminModel.create(userId);
+      }
+      await ParticipantModel.deleteByUserId(userId);
+    } else {
+      const participantEntryExists = await ParticipantModel.findByUserId(
+        userId
+      );
+      if (!participantEntryExists) {
+        await ParticipantModel.create(userId);
+      }
+    }
+
+    res.status(200).json({ message: "Role updated successfully" });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res.status(500).json({ message: "Error updating role" });
+  }
+});
+
+app.use("/api/auth", roleSelectionRouter);
 
 export default app;
