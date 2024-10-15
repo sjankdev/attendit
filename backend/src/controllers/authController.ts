@@ -59,25 +59,22 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
 
     const { password: _, ...userWithoutPassword } = user;
 
-    return res
-      .status(201)
-      .json({
-        success: true,
-        message:
-          "User registered successfully. Please check your email to verify your account.",
-        user: userWithoutPassword,
-      });
+    return res.status(201).json({
+      success: true,
+      message:
+        "User registered successfully. Please check your email to verify your account.",
+      user: userWithoutPassword,
+    });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server error",
-        error: (error as Error).message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: (error as Error).message,
+    });
   }
 };
+
 const resendVerificationEmail = async (
   req: Request,
   res: Response
@@ -87,33 +84,27 @@ const resendVerificationEmail = async (
   try {
     const user = await UserModel.findByEmail(email);
     if (!user || user.isVerified) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User not found or already verified.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User not found or already verified.",
+      });
     }
 
     const verificationToken = uuidv4();
     await EmailVerificationModel.updateToken(user.id, verificationToken);
     await sendVerificationEmail(email, verificationToken);
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Verification email resent successfully.",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Verification email resent successfully.",
+    });
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server error",
-        error: (error as Error).message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: (error as Error).message,
+    });
   }
 };
 
@@ -126,12 +117,10 @@ const loginUser = async (req: Request, res: Response): Promise<Response> => {
   }
 
   if (!user.isVerified) {
-    return res
-      .status(403)
-      .json({
-        message:
-          "Account not verified. Please check your email for verification instructions.",
-      });
+    return res.status(403).json({
+      message:
+        "Account not verified. Please check your email for verification instructions.",
+    });
   }
 
   if (await bcrypt.compare(password, user.password)) {
