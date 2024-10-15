@@ -6,4 +6,5 @@ export interface User {
   password: string;
   role: string;
   isVerified: boolean;
+  roleChosen: boolean;
 }
