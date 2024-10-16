@@ -31,6 +31,13 @@ class UserModel {
     } as User;
   }
 
+  static async updateDOB(userId: number, dob: string): Promise<void> {
+    await db.execute<ResultSetHeader>("UPDATE users SET dob = ? WHERE id = ?", [
+      dob,
+      userId,
+    ]);
+  }
+
   static async setRoleChosen(userId: number): Promise<void> {
     await db.execute<ResultSetHeader>(
       "UPDATE users SET roleChosen = TRUE WHERE id = ?",
