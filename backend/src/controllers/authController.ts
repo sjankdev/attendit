@@ -20,6 +20,7 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     email,
     password,
     role = "participant",
+    dob,
   } = req.body;
 
   try {
@@ -36,7 +37,8 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
       lastName,
       email,
       hashedPassword,
-      role
+      role,
+      dob
     );
 
     if (role === "participant") {

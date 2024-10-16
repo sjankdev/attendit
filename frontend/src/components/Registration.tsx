@@ -9,6 +9,7 @@ interface RegistrationForm {
   email: string;
   password: string;
   role: string;
+  dob: string;
 }
 
 const Registration: React.FC = () => {
@@ -125,6 +126,22 @@ const Registration: React.FC = () => {
           {errors.password && (
             <p id="passwordError" className="error-message">
               {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="dob">Date of Birth:</label>
+          <input
+            type="date"
+            id="dob"
+            {...register("dob", { required: "Date of birth is required" })}
+            autoComplete="bday"
+            aria-describedby="dobError"
+          />
+          {errors.dob && (
+            <p id="dobError" className="error-message">
+              {errors.dob.message}
             </p>
           )}
         </div>

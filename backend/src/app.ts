@@ -72,7 +72,8 @@ passport.use(
             profile.name?.familyName || "",
             email,
             "",
-            "participant"
+            "participant",
+            null
           );
 
           await UserModel.setVerified(user.id);
