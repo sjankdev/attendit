@@ -8,11 +8,12 @@ class UserModel {
     lastName: string,
     email: string,
     password: string,
-    role: string
+    role: string,
+    dob: Date | null = null
   ): Promise<User> {
     const [result] = await db.execute<ResultSetHeader>(
-      "INSERT INTO users (firstName, lastName, email, password, role, isVerified, roleChosen) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [firstName, lastName, email, password, role, false, false]
+      "INSERT INTO users (firstName, lastName, email, password, role, isVerified, roleChosen, dob) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [firstName, lastName, email, password, role, false, false, dob]
     );
 
     const insertId = result.insertId as number;
@@ -26,7 +27,15 @@ class UserModel {
       role,
       isVerified: false,
       roleChosen: false,
+      dob,
     } as User;
+  }
+
+  static async updateDOB(userId: number, dob: string): Promise<void> {
+    await db.execute<ResultSetHeader>("UPDATE users SET dob = ? WHERE id = ?", [
+      dob,
+      userId,
+    ]);
   }
 
   static async setRoleChosen(userId: number): Promise<void> {

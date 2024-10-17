@@ -72,7 +72,8 @@ passport.use(
             profile.name?.familyName || "",
             email,
             "",
-            "participant"
+            "participant",
+            null
           );
 
           await UserModel.setVerified(user.id);
@@ -114,22 +115,23 @@ app.get(
 
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
-    res.redirect(
-      `http:
-        user.id
-      }&firstTime=${!user.roleChosen}`
-    );
+    const redirectUrl = `http://localhost:3000/select-role?userId=${
+      user.id
+    }&firstTime=${!user.roleChosen}`;
+    res.redirect(redirectUrl);
   }
 );
 
 const roleSelectionRouter = Router();
 
 roleSelectionRouter.post("/select-role", async (req, res) => {
-  const { userId, role } = req.body;
+  const { userId, role, dob } = req.body;
 
   try {
-    if (!userId || !role) {
-      return res.status(400).json({ message: "User ID and role are required" });
+    if (!userId || !role || !dob) {
+      return res
+        .status(400)
+        .json({ message: "User ID, role, and DOB are required" });
     }
 
     const exists = await UserModel.userExists(userId);
@@ -138,6 +140,8 @@ roleSelectionRouter.post("/select-role", async (req, res) => {
     }
 
     await UserModel.updateRole(userId, role);
+
+    await UserModel.updateDOB(userId, dob);
 
     await UserModel.setRoleChosen(userId);
 

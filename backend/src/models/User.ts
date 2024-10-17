@@ -7,4 +7,5 @@ export interface User {
   role: string;
   isVerified: boolean;
   roleChosen: boolean;
+  dob?: Date | null;
 }

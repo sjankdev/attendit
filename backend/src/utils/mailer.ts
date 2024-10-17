@@ -14,7 +14,7 @@ export const sendVerificationEmail = async (email: string, verificationToken: st
     const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${verificationToken}`;
 
     const mailOptions = {
-        from: '"AttendIt" <no-reply@trial-z86org8wm01gew13.mlsender.net>',
+        from: '"AttendIt" <no-reply@trial-0p7kx4x2jqvg9yjr.mlsender.net>',
         to: email,
         subject: 'Verify Your Email Address',
         text: `Please verify your email by clicking on the link: ${verificationUrl}`,

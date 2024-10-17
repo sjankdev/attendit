@@ -4,6 +4,7 @@ import axios from "axios";
 
 const RoleSelection: React.FC = () => {
   const [role, setRole] = useState<string>("participant");
+  const [dob, setDob] = useState<string>(""); // New state for DOB
   const [serverError, setServerError] = useState<string>("");
   const { search } = useLocation();
 
@@ -23,7 +24,7 @@ const RoleSelection: React.FC = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/select-role",
-        { userId, role },
+        { userId, role, dob },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -43,6 +44,18 @@ const RoleSelection: React.FC = () => {
   return (
     <div>
       <h2>Select Your Role</h2>
+
+      <div>
+        <label htmlFor="dob">Date of Birth:</label>
+        <input
+          type="date"
+          id="dob"
+          value={dob}
+          onChange={(e) => setDob(e.target.value)}
+          required
+        />
+      </div>
+
       <select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="participant">Participant</option>
         <option value="admin">Admin</option>

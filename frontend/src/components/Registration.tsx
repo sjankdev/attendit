@@ -1,33 +1,45 @@
 import React, { useState } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
+import Step1 from "./Step1";
+import Step2 from "./Step2";
+import Step3 from "./Step3";
 import "../assets/css/Registration.css";
 
-interface RegistrationForm {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role: string;
-}
-
 const Registration: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegistrationForm>();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState<{
+    email?: string;
+    password?: string;
+    role?: string;
+    firstName?: string;
+    lastName?: string;
+    dob?: string;
+  } | null>(null);
   const [serverError, setServerError] = useState<string>("");
 
-  const onSubmit: SubmitHandler<RegistrationForm> = async (data) => {
+  const handleNextStep = (data: any) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+    setCurrentStep((prev) => prev + 1);
+  };
+
+  const handleBackStep = () => {
+    setCurrentStep((prev) => prev - 1);
+  };
+
+  const handleFinishRegistration = async (data: {
+    firstName: string;
+    lastName: string;
+    dob: string;
+  }) => {
+    const registrationData = { ...formData, ...data };
     setServerError("");
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/register",
-        data
+        registrationData
       );
       alert(response.data.message);
-
       if (response.data.token && response.data.refreshToken) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("refreshToken", response.data.refreshToken);
@@ -40,123 +52,22 @@ const Registration: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/auth/google";
-  };
-
   return (
     <div className="registration-container">
       <h2>Join Our Event Management Community</h2>
       <p>Streamline your event planning and invitations!</p>
-      <form
-        className="registration-form"
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-      >
-        <div className="form-group">
-          <label htmlFor="firstName">First Name:</label>
-          <input
-            type="text"
-            id="firstName"
-            {...register("firstName", { required: "First name is required" })}
-            autoComplete="given-name"
-            aria-describedby="firstNameError"
-          />
-          {errors.firstName && (
-            <p id="firstNameError" className="error-message">
-              {errors.firstName.message}
-            </p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="lastName">Last Name:</label>
-          <input
-            type="text"
-            id="lastName"
-            {...register("lastName", { required: "Last name is required" })}
-            autoComplete="family-name"
-            aria-describedby="lastNameError"
-          />
-          {errors.lastName && (
-            <p id="lastNameError" className="error-message">
-              {errors.lastName.message}
-            </p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email format",
-              },
-            })}
-            autoComplete="email"
-            aria-describedby="emailError"
-          />
-          {errors.email && (
-            <p id="emailError" className="error-message">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters long",
-              },
-            })}
-            autoComplete="new-password"
-            aria-describedby="passwordError"
-          />
-          {errors.password && (
-            <p id="passwordError" className="error-message">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        <div className="role-group">
-          <label htmlFor="role" className="role-label">
-            Role:
-          </label>
-          <select id="role" {...register("role")} className="role-select">
-            <option value="participant">Participant</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
-        {serverError && <p className="server-error">{serverError}</p>}
-        <button type="submit" className="submit-button">
-          Register
-        </button>
-      </form>
-
-      <h3>Or sign in with:</h3>
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        className="google-button"
-      >
-        Sign in with Google
-      </button>
-
-      <p>
-        Already have an account? <a href="/login">Login here</a>
-      </p>
+      {currentStep === 1 && (
+        <Step1 onNext={handleNextStep} serverError={serverError} />
+      )}
+      {currentStep === 2 && (
+        <Step2
+          onNext={(role) => handleNextStep({ role })}
+          onBack={handleBackStep}
+        />
+      )}
+      {currentStep === 3 && (
+        <Step3 onSubmit={handleFinishRegistration} onBack={handleBackStep} />
+      )}
     </div>
   );
 };
