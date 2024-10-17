@@ -41,6 +41,8 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
       dob
     );
 
+    await UserModel.setRoleChosen(user.id);
+
     if (role === "participant") {
       await ParticipantModel.create(user.id);
     } else if (role === "admin") {
