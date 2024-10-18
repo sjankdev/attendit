@@ -23,47 +23,63 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
   };
 
   return (
-    <div className="centered-container">
-      <div className="form-container">
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="form">
-          <input
-            type="email"
-            {...register("email", { required: "Email is required" })}
-            autoComplete="email"
-            placeholder="Email..."
-          />
-          {errors.email && (
-            <p className="error-message">{errors.email.message}</p>
-          )}
+    <div className="step1-container">
+      <div className="form-section">
+        <form
+          className="step1-form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
+          <h2 className="form-title">Create Your Account</h2>
 
-          <input
-            type="password"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters long",
-              },
-            })}
-            autoComplete="new-password"
-            placeholder="Password..."
-          />
-          {errors.password && (
-            <p className="error-message">{errors.password.message}</p>
-          )}
+          <div className="form-group">
+            <input
+              type="email"
+              {...register("email", { required: "Email is required" })}
+              autoComplete="email"
+              placeholder="Email..."
+              className="form-input"
+            />
+            {errors.email && (
+              <p className="error-message">{errors.email.message}</p>
+            )}
+          </div>
 
-          <button type="submit" className="create-account-button">
+          <div className="form-group">
+            <input
+              type="password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters long",
+                },
+              })}
+              autoComplete="new-password"
+              placeholder="Password..."
+              className="form-input"
+            />
+            {errors.password && (
+              <p className="error-message">{errors.password.message}</p>
+            )}
+          </div>
+
+          <button type="submit" className="submit-button">
             Create Account
           </button>
 
           <button
-            className="google-signin-button"
             type="button"
+            className="google-signin-button"
             onClick={() =>
               (window.location.href = "http://localhost:5000/auth/google")
             }
           >
-            <img src={googleSignInIcon} alt="Google icon" width="20" />
+            <img
+              src={googleSignInIcon}
+              alt="Google icon"
+              className="google-icon"
+            />
             Sign in with Google
           </button>
 
@@ -79,7 +95,7 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
         </form>
       </div>
 
-      <div className="slideshow-container">
+      <div className="image-section">
         <BannerSlider />
       </div>
     </div>

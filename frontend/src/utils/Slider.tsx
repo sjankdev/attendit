@@ -16,20 +16,21 @@ const BannerSlider: React.FC = () => {
   };
 
   return (
-    <div className="slider-container">
+    <div className="banner-slider">
       <Slider {...settings}>
-        <div className="slide">
-          <img src={banner1} alt="Banner 1" className="slider-image" />
-          <div className="text-overlay">
-            <h1>Event Management</h1>
-            <p>Plan your events with ease.</p>
+        <div className="banner-slide">
+          <img src={banner1} alt="Banner 1" className="banner-image" />
+          <div className="banner-content">
+            <h1 className="banner-title">Event Management</h1>
+            <p className="banner-description">Plan your events with ease.</p>
           </div>
         </div>
-        <div className="slide">
-          <img src={banner2} alt="Banner 2" className="slider-image" />
-          <div className="text-overlay">
-            <h1>Plan Your Next Event</h1>
-            <p>Make unforgettable memories!</p>
+
+        <div className="banner-slide">
+          <img src={banner2} alt="Banner 2" className="banner-image" />
+          <div className="banner-content">
+            <h1 className="banner-title">Plan Your Next Event</h1>
+            <p className="banner-description">Make unforgettable memories!</p>
           </div>
         </div>
       </Slider>
