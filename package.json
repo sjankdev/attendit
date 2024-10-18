@@ -13,6 +13,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "react-hook-form": "^7.53.0",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -21,6 +23,7 @@
     "@types/express": "^4.17.13",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.4",
+    "@types/react-slick": "^0.23.13",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }

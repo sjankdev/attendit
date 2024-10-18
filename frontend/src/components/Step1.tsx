@@ -1,5 +1,8 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import "../assets/css/Step1.css";
+import googleSignInIcon from "../assets/photos/logos/google-sign-in-icon.png";
+import BannerSlider from "../utils/Slider";
 
 interface Step1Props {
   onNext: (data: { email: string; password: string }) => void;
@@ -20,53 +23,82 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="form-group">
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          {...register("email", { required: "Email is required" })}
-          autoComplete="email"
-        />
-        {errors.email && (
-          <p className="error-message">{errors.email.message}</p>
-        )}
+    <div className="step1-container">
+      <div className="form-section">
+        <form
+          className="step1-form"
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
+        >
+          <h2 className="form-title">Create Your Account</h2>
+
+          <div className="form-group">
+            <input
+              type="email"
+              {...register("email", { required: "Email is required" })}
+              autoComplete="email"
+              placeholder="Email..."
+              className="form-input"
+            />
+            {errors.email && (
+              <p className="error-message">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="form-group">
+            <input
+              type="password"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters long",
+                },
+              })}
+              autoComplete="new-password"
+              placeholder="Password..."
+              className="form-input"
+            />
+            {errors.password && (
+              <p className="error-message">{errors.password.message}</p>
+            )}
+          </div>
+
+          <button type="submit" className="submit-button">
+            Create Account
+          </button>
+
+          <button
+            type="button"
+            className="google-signin-button"
+            onClick={() =>
+              (window.location.href = "http://localhost:5000/auth/google")
+            }
+          >
+            <img
+              src={googleSignInIcon}
+              alt="Google icon"
+              className="google-icon"
+            />
+            Sign in with Google
+          </button>
+
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => {
+              console.log("Redirect to login");
+            }}
+          >
+            Already have an account? Login
+          </button>
+        </form>
       </div>
 
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          {...register("password", {
-            required: "Password is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters long",
-            },
-          })}
-          autoComplete="new-password"
-        />
-        {errors.password && (
-          <p className="error-message">{errors.password.message}</p>
-        )}
+      <div className="image-section">
+        <BannerSlider />
       </div>
-
-      {serverError && <p className="server-error">{serverError}</p>}
-      <button type="submit" className="submit-button">
-        Create Account
-      </button>
-      <button
-        type="button"
-        onClick={() =>
-          (window.location.href = "http://localhost:5000/auth/google")
-        }
-        className="google-button"
-      >
-        Sign in with Google
-      </button>
-    </form>
+    </div>
   );
 };
 
