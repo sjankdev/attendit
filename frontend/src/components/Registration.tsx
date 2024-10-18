@@ -3,7 +3,6 @@ import axios from "axios";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import "../assets/css/Registration.css";
 
 const Registration: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -54,8 +53,6 @@ const Registration: React.FC = () => {
 
   return (
     <div className="registration-container">
-      <h2>Join Our Event Management Community</h2>
-      <p>Streamline your event planning and invitations!</p>
       {currentStep === 1 && (
         <Step1 onNext={handleNextStep} serverError={serverError} />
       )}
