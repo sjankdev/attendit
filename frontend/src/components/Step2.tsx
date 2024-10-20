@@ -1,5 +1,8 @@
-import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import eventAdminIcon from "../assets/photos/icons/event-admin.png"; 
+import eventParticipantIcon from "../assets/photos/icons/event-participant.png"; 
+import "../assets/css/Step2.css";
 
 interface Step2Props {
   onNext: (role: string) => void;
@@ -7,37 +10,57 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
-  const { register } = useForm<{ role: string }>();
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const { handleSubmit } = useForm();
 
-  const handleNext = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const form = event.target as HTMLFormElement;
-    const role = (form.elements.namedItem("role") as HTMLSelectElement).value;
-
-    if (role) {
-      onNext(role);
+  const handleNext = () => {
+    if (selectedRole) {
+      onNext(selectedRole);
     }
   };
 
+  const handleRoleSelection = (role: string) => {
+    setSelectedRole(role);
+  };
+
   return (
-    <form onSubmit={handleNext}>
-      <div className="role-group">
-        <label htmlFor="role" className="role-label">
-          Role:
-        </label>
-        <select id="role" {...register("role")} className="role-select">
-          <option value="participant">Participant</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
-      <button type="button" onClick={onBack} className="back-button">
-        Back
-      </button>
-      <button type="submit" className="submit-button">
-        Next
-      </button>
-    </form>
+    <div className="step2-container">
+      <h2 className="step2-title">You are joining as?</h2>
+      <form onSubmit={handleSubmit(handleNext)} className="step2-form">
+        <div className="role-selection">
+          <div
+            className={`role-option ${
+              selectedRole === "admin" ? "selected" : ""
+            }`}
+            onClick={() => handleRoleSelection("admin")}
+            role="button"
+            aria-pressed={selectedRole === "admin"}
+          >
+            <img src={eventAdminIcon} alt="Event Organizer" />
+            <span>Event Organizer</span>
+          </div>
+          <div
+            className={`role-option ${
+              selectedRole === "participant" ? "selected" : ""
+            }`}
+            onClick={() => handleRoleSelection("participant")}
+            role="button"
+            aria-pressed={selectedRole === "participant"}
+          >
+            <img src={eventParticipantIcon} alt="Attender" />
+            <span>Attender</span>
+          </div>
+        </div>
+        <div className="button-container">
+          <button type="button" className="back-button" onClick={onBack}>
+            Back
+          </button>
+          <button type="submit" className="next-button" disabled={!selectedRole}>
+            Next
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
