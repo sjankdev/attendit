@@ -3,13 +3,15 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import "../assets/css/Step1.css";
 import googleSignInIcon from "../assets/photos/logos/google-sign-in-icon.png";
 import BannerSlider from "../utils/Slider";
-
+import { useNavigate } from "react-router-dom";
 interface Step1Props {
   onNext: (data: { email: string; password: string }) => void;
   serverError: string;
 }
 
 const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -83,15 +85,14 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
             Sign in with Google
           </button>
 
-          <button
-            type="button"
-            className="login-button"
+          <div
+            className="custom-login-div"
             onClick={() => {
-              console.log("Redirect to login");
+              navigate("/login");
             }}
           >
             Already have an account? Login
-          </button>
+          </div>
         </form>
       </div>
 
