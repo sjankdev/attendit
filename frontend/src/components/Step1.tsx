@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import "../assets/css/Step1.css";
 import googleSignInIcon from "../assets/photos/logos/google-sign-in-icon.png";
 import BannerSlider from "../utils/Slider";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 interface Step1Props {
   onNext: (data: { email: string; password: string }) => void;
   serverError: string;
@@ -12,16 +14,37 @@ interface Step1Props {
 const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
   const navigate = useNavigate();
 
+  const [emailExistsError, setEmailExistsError] = useState<string>("");
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<{ email: string; password: string }>();
 
-  const onSubmit: SubmitHandler<{ email: string; password: string }> = (
+  const onSubmit: SubmitHandler<{ email: string; password: string }> = async (
     data
   ) => {
-    onNext(data);
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/check-email",
+        {
+          email: data.email,
+        }
+      );
+
+      if (response.data.exists) {
+        setEmailExistsError(
+          "Email already exists, please use a different email."
+        );
+      } else {
+        setEmailExistsError("");
+        onNext(data);
+      }
+    } catch (error) {
+      console.error(error);
+      setEmailExistsError("An error occurred while checking the email.");
+    }
   };
 
   return (
@@ -44,6 +67,9 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
             />
             {errors.email && (
               <p className="error-message">{errors.email.message}</p>
+            )}
+            {emailExistsError && (
+              <p className="error-message">{emailExistsError}</p>
             )}
           </div>
 

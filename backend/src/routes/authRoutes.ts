@@ -1,9 +1,16 @@
-import express, { Request, Response } from 'express';
-import { validateRegistration, handleValidationErrors } from '../middleware/validateInput';
-import { registerUser, loginUser, refreshAccessToken } from '../controllers/authController';
-import UserModel from '../models/UserModel';
-import { resendVerificationEmail } from '../controllers/authController';
-import JwtTokenModel from '../models/JwtTokenModel';
+import express, { Request, Response } from "express";
+import {
+  validateRegistration,
+  handleValidationErrors,
+} from "../middleware/validateInput";
+import {
+  registerUser,
+  loginUser,
+  refreshAccessToken,
+} from "../controllers/authController";
+import UserModel from "../models/UserModel";
+import { resendVerificationEmail } from "../controllers/authController";
+import JwtTokenModel from "../models/JwtTokenModel";
 const router = express.Router();
 
 interface RegisterRequest extends Request {
@@ -15,42 +22,60 @@ interface RegisterRequest extends Request {
   };
 }
 
-router.post('/register', validateRegistration, handleValidationErrors, async (req: RegisterRequest, res: Response) => {
-  await registerUser(req, res);
+router.post(
+  "/register",
+  validateRegistration,
+  handleValidationErrors,
+  async (req: RegisterRequest, res: Response) => {
+    await registerUser(req, res);
+  }
+);
+
+router.post("/check-email", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const exists = await UserModel.emailExists(email);
+    return res.json({ exists });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
 });
 
-router.post('/login', async (req: Request, res: Response) => {
+router.post("/login", async (req: Request, res: Response) => {
   await loginUser(req, res);
 });
 
-router.post('/refresh-token', async (req: Request, res: Response) => {
+router.post("/refresh-token", async (req: Request, res: Response) => {
   await refreshAccessToken(req, res);
 });
 
-router.get('/verify', async (req: Request, res: Response) => {
+router.get("/verify", async (req: Request, res: Response) => {
   const { token } = req.query;
 
   if (!token) {
-    return res.status(400).json({ message: 'Verification token is required' });
+    return res.status(400).json({ message: "Verification token is required" });
   }
 
   try {
     const user = await UserModel.findByVerificationToken(token as string);
     if (!user) {
-      return res.status(404).json({ message: 'User not found or token is invalid' });
+      return res
+        .status(404)
+        .json({ message: "User not found or token is invalid" });
     }
 
     await UserModel.verifyUser(user.id);
-    return res.status(200).json({ message: 'Email verified successfully' });
+    return res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 });
 
-router.post('/resend-verification', resendVerificationEmail);
+router.post("/resend-verification", resendVerificationEmail);
 
-router.get('/logout', async (req: Request, res: Response) => {
+router.get("/logout", async (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
     const userId = req.user.id;
 
@@ -58,12 +83,12 @@ router.get('/logout', async (req: Request, res: Response) => {
 
     req.logout((err) => {
       if (err) {
-        return res.status(500).json({ message: 'Could not log out' });
+        return res.status(500).json({ message: "Could not log out" });
       }
-      res.status(200).json({ message: 'Logged out successfully' });
+      res.status(200).json({ message: "Logged out successfully" });
     });
   } else {
-    res.status(401).json({ message: 'Not authenticated' });
+    res.status(401).json({ message: "Not authenticated" });
   }
 });
 

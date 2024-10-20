@@ -65,6 +65,14 @@ class UserModel {
     );
   }
 
+  static async emailExists(email: string): Promise<boolean> {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      "SELECT COUNT(*) as count FROM users WHERE email = ?",
+      [email]
+    );
+    return rows[0].count > 0;
+  }
+
   static async verifyUser(id: number): Promise<void> {
     await db.execute<ResultSetHeader>(
       "UPDATE users SET isVerified = TRUE WHERE id = ?",
