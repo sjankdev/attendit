@@ -1,18 +1,13 @@
-
 :root {
-  --primary-color: #4a90e2;
-  --secondary-color: #50e3c2;
-  --background-color: #f5f7fa;
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --error-color: #dc3545;
+  --button-hover-color: #0056b3;
   --text-color: #333;
-  --error-color: #e94e77;
-  --button-hover-color: #3a78c8;
-  --border-radius: 8px;
+  --border-radius: 0.25rem;
 }
 
-body {
-  margin: 0;
-  font-family: "Arial", sans-serif;
-  background-color: var(--background-color);
+.login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;

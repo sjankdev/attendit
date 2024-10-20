@@ -54,76 +54,84 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2 className="login-title">Login</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="login-form" noValidate>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            {...register("email", { required: "Email is required" })}
-            autoComplete="email"
-            className={errors.email ? "input-error" : ""}
-            aria-describedby="emailError"
-          />
-          {errors.email && (
-            <p id="emailError" className="error-message">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            {...register("password", { required: "Password is required" })}
-            autoComplete="current-password"
-            className={errors.password ? "input-error" : ""}
-            aria-describedby="passwordError"
-          />
-          {errors.password && (
-            <p id="passwordError" className="error-message">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
+    <div className="login-wrapper">
+      {" "}
+      {/* New wrapper div for centering */}
+      <div className="login-container">
+        <h2 className="login-title">Login</h2>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="login-form"
+          noValidate
+        >
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              {...register("email", { required: "Email is required" })}
+              autoComplete="email"
+              className={errors.email ? "input-error" : ""}
+              aria-describedby="emailError"
+            />
+            {errors.email && (
+              <p id="emailError" className="error-message">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              {...register("password", { required: "Password is required" })}
+              autoComplete="current-password"
+              className={errors.password ? "input-error" : ""}
+              aria-describedby="passwordError"
+            />
+            {errors.password && (
+              <p id="passwordError" className="error-message">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
 
-        {serverError && !emailForResend && (
-          <p className="error-message">{serverError}</p>
+          {serverError && !emailForResend && (
+            <p className="error-message">{serverError}</p>
+          )}
+
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+
+        {emailForResend && (
+          <div className="resend-verification">
+            <p>
+              Your account is not verified. Click below to resend the
+              verification email:
+            </p>
+            <button
+              type="button"
+              className="resend-button"
+              onClick={handleResendVerification}
+            >
+              Resend Verification Email
+            </button>
+          </div>
         )}
 
-        <button type="submit" className="login-button">
-          Login
-        </button>
-      </form>
-
-      {emailForResend && (
-        <div className="resend-verification">
-          <p>
-            Your account is not verified. Click below to resend the verification
-            email:
-          </p>
+        <p className="register-prompt">
+          Don't have an account?
           <button
-            type="button"
-            className="resend-button"
-            onClick={handleResendVerification}
+            className="register-button"
+            onClick={() => navigate("/register")}
           >
-            Resend Verification Email
+            Register now
           </button>
-        </div>
-      )}
-
-      <p className="register-prompt">
-        Don't have an account?
-        <button
-          className="register-button"
-          onClick={() => navigate("/register")}
-        >
-          Register now
-        </button>
-      </p>
+        </p>
+      </div>
     </div>
   );
 };
