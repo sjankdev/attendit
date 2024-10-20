@@ -29,22 +29,16 @@ const Step3: React.FC<Step3Props> = ({ onSubmit, onBack }) => {
   return (
     <div className="step3-container">
       <h2 className="step3-title">Complete Your Registration</h2>
-      <form
-        onSubmit={handleSubmit(onSubmitHandler)}
-        noValidate
-        className="step3-form"
-      >
+      <form onSubmit={handleSubmit(onSubmitHandler)} noValidate className="step3-form">
         <div className="form-group">
           <label htmlFor="firstName">First Name:</label>
           <input
             type="text"
             id="firstName"
             {...register("firstName", { required: "First name is required" })}
-            className={errors.firstName ? "input-error" : ""}
+            className={`form-input ${errors.firstName ? "input-error" : ""}`}
           />
-          {errors.firstName && (
-            <p className="error-message">{errors.firstName.message}</p>
-          )}
+          {errors.firstName && <p className="error-message">{errors.firstName.message}</p>}
         </div>
 
         <div className="form-group">
@@ -53,11 +47,9 @@ const Step3: React.FC<Step3Props> = ({ onSubmit, onBack }) => {
             type="text"
             id="lastName"
             {...register("lastName", { required: "Last name is required" })}
-            className={errors.lastName ? "input-error" : ""}
+            className={`form-input ${errors.lastName ? "input-error" : ""}`}
           />
-          {errors.lastName && (
-            <p className="error-message">{errors.lastName.message}</p>
-          )}
+          {errors.lastName && <p className="error-message">{errors.lastName.message}</p>}
         </div>
 
         <div className="form-group">
@@ -66,7 +58,7 @@ const Step3: React.FC<Step3Props> = ({ onSubmit, onBack }) => {
             type="date"
             id="dob"
             {...register("dob", { required: "Date of birth is required" })}
-            className={errors.dob ? "input-error" : ""}
+            className={`form-input ${errors.dob ? "input-error" : ""}`}
           />
           {errors.dob && <p className="error-message">{errors.dob.message}</p>}
         </div>
