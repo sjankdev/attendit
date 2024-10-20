@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const RoleSelection: React.FC = () => {
   const [role, setRole] = useState<string>("participant");
-  const [dob, setDob] = useState<string>(""); // New state for DOB
-  const [serverError, setServerError] = useState<string>("");
   const { search } = useLocation();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(search);
   const userId = query.get("userId");
@@ -20,48 +18,20 @@ const RoleSelection: React.FC = () => {
     }
   }, [firstTime, token, refreshToken]);
 
-  const handleRoleSubmit = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/select-role",
-        { userId, role, dob },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("Response from server:", response.data);
-      alert(response.data.message);
-      window.location.href = `/home?token=${token}&refreshToken=${refreshToken}`;
-    } catch (error: any) {
-      console.error("Error during role submission:", error);
-      setServerError(error.response?.data?.message || "An error occurred");
-    }
+  const handleRoleSubmit = () => {
+    navigate(
+      `/select-dob?userId=${userId}&role=${role}&token=${token}&refreshToken=${refreshToken}`
+    );
   };
 
   return (
     <div>
       <h2>Select Your Role</h2>
-
-      <div>
-        <label htmlFor="dob">Date of Birth:</label>
-        <input
-          type="date"
-          id="dob"
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-          required
-        />
-      </div>
-
       <select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="participant">Participant</option>
         <option value="admin">Admin</option>
       </select>
-      <button onClick={handleRoleSubmit}>Submit</button>
-      {serverError && <p className="error">{serverError}</p>}
+      <button onClick={handleRoleSubmit}>Next</button>
     </div>
   );
 };
