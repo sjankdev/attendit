@@ -112,18 +112,18 @@
   transform: scale(1.05);
 }
 
-.login-button {
+.custom-login-div {
   background-color: transparent;
   color: #007bff;
-  border: none;
+  padding: 10px;
   margin-top: auto;
   text-align: center;
   font-size: 15px;
   cursor: pointer;
+  transition: color 0.3s, text-decoration 0.3s;
 }
 
-.login-button:hover {
-  background-color: transparent;
+.custom-login-div:hover {
   color: #0056b3;
   text-decoration: underline;
 }
