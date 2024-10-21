@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import eventAdminIcon from "../assets/photos/icons/event-admin.png";
+import eventParticipantIcon from "../assets/photos/icons/event-participant.png";
+import "../assets/css/Step2.css";
 
 const RoleSelection: React.FC = () => {
-  const [role, setRole] = useState<string>("participant");
-  const [dob, setDob] = useState<string>(""); // New state for DOB
-  const [serverError, setServerError] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const { search } = useLocation();
+  const navigate = useNavigate();
 
   const query = new URLSearchParams(search);
   const userId = query.get("userId");
@@ -20,48 +21,64 @@ const RoleSelection: React.FC = () => {
     }
   }, [firstTime, token, refreshToken]);
 
-  const handleRoleSubmit = async () => {
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/select-role",
-        { userId, role, dob },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  const handleRoleSelection = (role: string) => {
+    setSelectedRole(role);
+  };
 
-      console.log("Response from server:", response.data);
-      alert(response.data.message);
-      window.location.href = `/home?token=${token}&refreshToken=${refreshToken}`;
-    } catch (error: any) {
-      console.error("Error during role submission:", error);
-      setServerError(error.response?.data?.message || "An error occurred");
+  const handleRoleSubmit = () => {
+    console.log("Selected Role:", selectedRole);
+
+    if (selectedRole) {
+      navigate(
+        `/select-dob?userId=${userId}&role=${selectedRole}&token=${token}&refreshToken=${refreshToken}`
+      );
     }
   };
 
   return (
-    <div>
-      <h2>Select Your Role</h2>
-
-      <div>
-        <label htmlFor="dob">Date of Birth:</label>
-        <input
-          type="date"
-          id="dob"
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-          required
-        />
+    <div className="step2-container">
+      <h2 className="step2-title">Select Your Role</h2>
+      <div className="role-selection">
+        <div
+          className={`role-option ${
+            selectedRole === "admin" ? "selected" : ""
+          }`}
+          onClick={() => handleRoleSelection("admin")}
+          role="button"
+          aria-pressed={selectedRole === "admin"}
+        >
+          <img src={eventAdminIcon} alt="Event Organizer" />
+          <span>Event Organizer</span>
+        </div>
+        <div
+          className={`role-option ${
+            selectedRole === "participant" ? "selected" : ""
+          }`}
+          onClick={() => handleRoleSelection("participant")}
+          role="button"
+          aria-pressed={selectedRole === "participant"}
+        >
+          <img src={eventParticipantIcon} alt="Attender" />
+          <span>Attender</span>
+        </div>
       </div>
-
-      <select value={role} onChange={(e) => setRole(e.target.value)}>
-        <option value="participant">Participant</option>
-        <option value="admin">Admin</option>
-      </select>
-      <button onClick={handleRoleSubmit}>Submit</button>
-      {serverError && <p className="error">{serverError}</p>}
+      <div className="button-container">
+        <button
+          type="button"
+          className="back-button"
+          onClick={() => navigate(-1)}
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          className="next-button"
+          onClick={handleRoleSubmit}
+          disabled={!selectedRole}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
