@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../assets/css/Login.css";
 
 interface LoginForm {
@@ -56,7 +56,6 @@ const Login: React.FC = () => {
   return (
     <div className="login-wrapper">
       {" "}
-      {/* New wrapper div for centering */}
       <div className="login-container">
         <h2 className="login-title">Login</h2>
         <form
@@ -131,6 +130,7 @@ const Login: React.FC = () => {
             Register now
           </button>
         </p>
+        <Link to="/request-password-reset">Forgot Password?</Link>
       </div>
     </div>
   );
