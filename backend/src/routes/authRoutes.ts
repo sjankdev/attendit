@@ -92,4 +92,28 @@ router.get("/logout", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/request-password-reset", async (req, res) => {
+  const { email } = req.body;
+
+  console.log("Password reset request received for email:", email);
+
+  const result = await UserModel.requestPasswordReset(email);
+  if (result === null) {
+    console.log("Email not found:", email);
+    return res.status(404).send("Email not found");
+  }
+
+  console.log("Password reset link sent to email:", email);
+  res.send("Password reset link sent to your email.");
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+  const success = await UserModel.resetPassword(token, newPassword);
+  if (!success) {
+    return res.status(400).send("Invalid or expired token");
+  }
+  res.send("Password reset successfully");
+});
+
 export default router;

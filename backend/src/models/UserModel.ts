@@ -1,6 +1,9 @@
 import db from "../config/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { User } from "./User";
+import { sendPasswordResetEmail } from "../utils/mailer";
+import * as crypto from "crypto";
+import bcrypt from "bcrypt";
 
 class UserModel {
   static async create(
@@ -36,6 +39,53 @@ class UserModel {
       dob,
       userId,
     ]);
+  }
+
+  static async findByResetToken(token: string): Promise<User | null> {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      "SELECT * FROM users WHERE resetToken = ? AND resetTokenExpiresAt > NOW()",
+      [token]
+    );
+    const user = rows[0] as User;
+    return user || null;
+  }
+
+  static async requestPasswordReset(email: string): Promise<string | null> {
+    const user = await this.findByEmail(email);
+    if (!user) return null;
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    const resetTokenExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+    await db.execute<ResultSetHeader>(
+      "UPDATE users SET resetToken = ?, resetTokenExpiresAt = ? WHERE id = ?",
+      [resetToken, resetTokenExpiresAt, user.id]
+    );
+
+    await sendPasswordResetEmail(email, resetToken);
+    return resetToken;
+  }
+
+  static async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<boolean> {
+    console.log("Reset Password called with token:", token);
+    console.log("New password:", newPassword);
+
+    const user = await this.findByResetToken(token);
+    if (!user) {
+      console.error("Invalid token:", token);
+      return false;
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.execute<ResultSetHeader>(
+      "UPDATE users SET password = ?, resetToken = NULL, resetTokenExpiresAt = NULL WHERE id = ?",
+      [hashedPassword, user.id]
+    );
+    console.log("Password reset successfully for user ID:", user.id);
+    return true;
   }
 
   static async setRoleChosen(userId: number): Promise<void> {

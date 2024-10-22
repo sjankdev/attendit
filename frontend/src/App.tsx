@@ -6,6 +6,8 @@ import Login from "./components/Login";
 import Verify from "./components/Verify";
 import RoleSelection from "./components/RoleSelection";
 import DobSelection from "./components/DobSelection";
+import RequestPasswordReset from "./components/RequestPasswordReset";
+import ResetPassword from "./components/ResetPassword";
 
 const App: React.FC = () => {
   return (
@@ -18,6 +20,11 @@ const App: React.FC = () => {
           <Route path="/verify" element={<Verify />} />
           <Route path="/select-role" element={<RoleSelection />} />
           <Route path="/select-dob" element={<DobSelection />} />
+          <Route
+            path="/request-password-reset"
+            element={<RequestPasswordReset />}
+          />{" "}
+          <Route path="/reset-password" element={<ResetPassword />} />{" "}
         </Routes>
       </div>
     </Router>
