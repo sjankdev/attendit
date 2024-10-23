@@ -10,19 +10,12 @@ import {
 } from "../utils/jwtHelper";
 import { v4 as uuidv4 } from "uuid";
 import { sendVerificationEmail } from "../utils/mailer";
-import ParticipantModel from "../models/ParticipantModel";
-import AdminModel from "../models/AdminModel";
 
 const registerUser = async (req: Request, res: Response): Promise<Response> => {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    confirmPassword,
-    role = "participant",
-    dob,
-  } = req.body;
+  const { firstName, lastName, email, password, confirmPassword, roles, dob } =
+    req.body;
+
+  console.log("Selected roles:", roles);
 
   if (password !== confirmPassword) {
     return res
@@ -39,22 +32,17 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("Selected roles:", roles);
     const user = await UserModel.create(
       firstName,
       lastName,
       email,
       hashedPassword,
-      role,
+      Array.isArray(roles) ? roles : [],
       dob
     );
 
     await UserModel.setRoleChosen(user.id);
-
-    if (role === "participant") {
-      await ParticipantModel.create(user.id);
-    } else if (role === "admin") {
-      await AdminModel.create(user.id);
-    }
 
     const verificationToken = uuidv4();
     const verificationTokenExpiresAt = new Date(
@@ -135,7 +123,9 @@ const loginUser = async (req: Request, res: Response): Promise<Response> => {
   }
 
   if (await bcrypt.compare(password, user.password)) {
-    const payload = { id: user.id, email: user.email, role: user.role };
+    const roles = await UserModel.getUserRoles(user.id);
+
+    const payload = { id: user.id, email: user.email, roles };
     const token = signToken(payload, "1h");
     const refreshToken = signRefreshToken(payload, "7d");
 
@@ -168,7 +158,9 @@ const refreshAccessToken = async (
         .json({ message: "User not found or refresh token is invalid" });
     }
 
-    const payload = { id: user.id, email: user.email, role: user.role };
+    const roles = await UserModel.getUserRoles(user.id);
+
+    const payload = { id: user.id, email: user.email, roles };
     const newAccessToken = signToken(payload, "1h");
     const newRefreshToken = signRefreshToken(payload, "7d");
 

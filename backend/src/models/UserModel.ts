@@ -11,15 +11,32 @@ class UserModel {
     lastName: string,
     email: string,
     password: string,
-    role: string,
+    roles: string[],
     dob: Date | null = null
   ): Promise<User> {
     const [result] = await db.execute<ResultSetHeader>(
-      "INSERT INTO users (firstName, lastName, email, password, role, isVerified, roleChosen, dob) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [firstName, lastName, email, password, role, false, false, dob]
+      "INSERT INTO users (firstName, lastName, email, password, isVerified, roleChosen, dob) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [firstName, lastName, email, password, false, false, dob]
     );
 
     const insertId = result.insertId as number;
+    console.log(`User created with ID: ${insertId}. Roles: ${roles}`);
+
+    for (const role of roles) {
+      console.log(`Inserting role: ${role} for user ID: ${insertId}`);
+      try {
+        const [insertResult] = await db.execute<ResultSetHeader>(
+          "INSERT INTO user_roles (user_id, role_id) SELECT ?, id FROM roles WHERE name = ?",
+          [insertId, role]
+        );
+        console.log(`Insert result for role ${role}:`, insertResult);
+      } catch (error) {
+        console.error(
+          `Error inserting role ${role} for user ID ${insertId}:`,
+          error
+        );
+      }
+    }
 
     return {
       id: insertId,
@@ -27,11 +44,47 @@ class UserModel {
       lastName,
       email,
       password,
-      role,
+      roles,
       isVerified: false,
       roleChosen: false,
       dob,
     } as User;
+  }
+
+  static async getUserRoles(userId: number): Promise<string[]> {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT r.name FROM user_roles ur 
+       JOIN roles r ON ur.role_id = r.id 
+       WHERE ur.user_id = ?`,
+      [userId]
+    );
+
+    if (!Array.isArray(rows)) {
+      console.error("Expected rows to be an array, but got:", rows);
+      return [];
+    }
+
+    return rows.map((row) => row.name);
+  }
+
+  static async updateRole(userId: number, roles: any) {
+    if (!Array.isArray(roles)) {
+      console.error(`Expected roles to be an array, but got:`, roles);
+      throw new TypeError("roles must be an array");
+    }
+
+    await db.execute<ResultSetHeader>(
+      "DELETE FROM user_roles WHERE user_id = ?",
+      [userId]
+    );
+
+    const roleInsertPromises = roles.map((role) => {
+      return db.execute<ResultSetHeader>(
+        "INSERT INTO user_roles (user_id, role_id) SELECT ?, id FROM roles WHERE name = ?",
+        [userId, role]
+      );
+    });
+    await Promise.all(roleInsertPromises);
   }
 
   static async updateDOB(userId: number, dob: string): Promise<void> {
@@ -164,22 +217,6 @@ class UserModel {
     return user || null;
   }
 
-  static async updateRole(userId: number, role: string) {
-    try {
-      const [result] = await db.execute<ResultSetHeader>(
-        "UPDATE users SET role = ? WHERE id = ?",
-        [role, userId]
-      );
-
-      console.log("Update result:", result);
-
-      if (result.affectedRows === 0) {
-        console.warn(`No rows updated for userId ${userId}`);
-      }
-    } catch (error) {
-      console.error("Error updating user role:", error);
-    }
-  }
   static async userExists(userId: number): Promise<boolean> {
     const [rows] = await db.execute<RowDataPacket[]>(
       "SELECT COUNT(*) as count FROM users WHERE id = ?",
