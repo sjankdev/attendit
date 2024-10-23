@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../assets/css/ResetPassword.css";
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
+  const [resetSuccess, setResetSuccess] = useState(false);
   const token = new URLSearchParams(window.location.search).get("token");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,10 +16,14 @@ function ResetPassword() {
         token,
         newPassword,
       });
-      alert("Password has been reset successfully.");
+      setResetSuccess(true);
     } catch (error) {
       alert("Error resetting password. Please try again.");
     }
+  };
+
+  const handleGoToLogin = () => {
+    navigate("/login");
   };
 
   return (
@@ -35,6 +42,17 @@ function ResetPassword() {
           Reset Password
         </button>
       </form>
+
+      {resetSuccess && (
+        <div className="success-container">
+          <p className="success-message">
+            Password has been reset successfully.
+          </p>
+          <button onClick={handleGoToLogin} className="form-button">
+            Go to Login
+          </button>
+        </div>
+      )}
     </div>
   );
 }
