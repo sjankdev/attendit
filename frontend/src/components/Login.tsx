@@ -54,55 +54,49 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-container">
-        <h2 className="login-title">Login</h2>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="login-form"
-          noValidate
-        >
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              {...register("email", { required: "Email is required" })}
-              autoComplete="email"
-              className={errors.email ? "input-error" : ""}
-              aria-describedby="emailError"
-            />
-            {errors.email && (
-              <p id="emailError" className="error-message">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              {...register("password", { required: "Password is required" })}
-              autoComplete="current-password"
-              className={errors.password ? "input-error" : ""}
-              aria-describedby="passwordError"
-            />
-            {errors.password && (
-              <p id="passwordError" className="error-message">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          {serverError && !emailForResend && (
-            <p className="error-message">{serverError}</p>
+    <div className="login-container">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="login-form">
+        <h2>Login</h2>
+        <div className="input-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            {...register("email", { required: "Email is required" })}
+            autoComplete="email"
+            aria-describedby="emailError"
+            className={errors.email ? "input-error" : ""}
+          />
+          {errors.email && (
+            <p id="emailError" className="error-message">
+              {errors.email.message}
+            </p>
           )}
+        </div>
+        <div className="input-group">
+          <label htmlFor="password">Password:</label>
+          <input
+            type="password"
+            id="password"
+            {...register("password", { required: "Password is required" })}
+            autoComplete="current-password"
+            aria-describedby="passwordError"
+            className={errors.password ? "input-error" : ""}
+          />
+          {errors.password && (
+            <p id="passwordError" className="error-message">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
 
-          <button type="submit" className="login-button">
-            Login
-          </button>
-        </form>
+        {serverError && !emailForResend && (
+          <p className="error-message">{serverError}</p>
+        )}
+
+        <button type="submit" className="submit-button">
+          Login
+        </button>
 
         {emailForResend && (
           <div className="resend-verification">
@@ -120,20 +114,21 @@ const Login: React.FC = () => {
           </div>
         )}
 
-        <p className="register-prompt">
+        <Link to="/request-password-reset" className="forgot-password">
+          Forgot Password?
+        </Link>
+
+        <p className="register-link">
           Don't have an account?
           <button
-            className="register-button"
+            type="button"
             onClick={() => navigate("/register")}
+            className="register-button"
           >
             Register now
           </button>
         </p>
-
-        <Link to="/request-password-reset" className="forgot-password-link">
-          Forgot Password?
-        </Link>
-      </div>
+      </form>
     </div>
   );
 };
