@@ -19,9 +19,16 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     lastName,
     email,
     password,
+    confirmPassword,
     role = "participant",
     dob,
   } = req.body;
+
+  if (password !== confirmPassword) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Passwords do not match" });
+  }
 
   try {
     const existingUserByEmail = await UserModel.findByEmail(email);

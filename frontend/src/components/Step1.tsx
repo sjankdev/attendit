@@ -20,11 +20,18 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<{ email: string; password: string }>();
+  } = useForm<{ email: string; password: string; confirmPassword: string }>();
 
-  const onSubmit: SubmitHandler<{ email: string; password: string }> = async (
-    data
-  ) => {
+  const onSubmit: SubmitHandler<{
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }> = async (data) => {
+    if (data.password !== data.confirmPassword) {
+      setEmailExistsError("Passwords do not match.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/check-email",
@@ -89,6 +96,21 @@ const Step1: React.FC<Step1Props> = ({ onNext, serverError }) => {
             />
             {errors.password && (
               <p className="error-message">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className="form-group">
+            <input
+              type="password"
+              {...register("confirmPassword", {
+                required: "Please confirm your password",
+              })}
+              autoComplete="new-password"
+              placeholder="Confirm Password..."
+              className="form-input"
+            />
+            {errors.confirmPassword && (
+              <p className="error-message">{errors.confirmPassword.message}</p>
             )}
           </div>
 
