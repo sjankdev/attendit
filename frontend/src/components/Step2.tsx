@@ -9,19 +9,17 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedRoles.length > 0) {
-      onNext(selectedRoles);
+    if (selectedRole) {
+      onNext([selectedRole]);
     }
   };
 
   const handleRoleSelection = (role: string) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
-    );
+    setSelectedRole(role);
   };
 
   return (
@@ -31,22 +29,22 @@ const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
         <div className="role-selection">
           <div
             className={`role-option ${
-              selectedRoles.includes("admin") ? "selected" : ""
+              selectedRole === "admin" ? "selected" : ""
             }`}
             onClick={() => handleRoleSelection("admin")}
             role="button"
-            aria-pressed={selectedRoles.includes("admin")}
+            aria-pressed={selectedRole === "admin"}
           >
             <img src={eventAdminIcon} alt="Event Organizer" />
             <span>Event Organizer</span>
           </div>
           <div
             className={`role-option ${
-              selectedRoles.includes("participant") ? "selected" : ""
+              selectedRole === "participant" ? "selected" : ""
             }`}
             onClick={() => handleRoleSelection("participant")}
             role="button"
-            aria-pressed={selectedRoles.includes("participant")}
+            aria-pressed={selectedRole === "participant"}
           >
             <img src={eventParticipantIcon} alt="Attender" />
             <span>Attender</span>
@@ -59,7 +57,7 @@ const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
           <button
             type="submit"
             className="next-button"
-            disabled={selectedRoles.length === 0}
+            disabled={!selectedRole}
           >
             Next
           </button>

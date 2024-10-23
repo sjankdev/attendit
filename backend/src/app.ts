@@ -115,7 +115,7 @@ app.get(
 
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
-    const redirectUrl = `http:
+    const redirectUrl = `http://localhost:3000/select-role?userId=${
       user.id
     }&firstTime=${!user.roleChosen}`;
     res.redirect(redirectUrl);
