@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "../assets/css/ResetPassword.css";
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -19,16 +20,22 @@ function ResetPassword() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="password"
-        value={newPassword}
-        onChange={(e) => setNewPassword(e.target.value)}
-        placeholder="Enter your new password"
-        required
-      />
-      <button type="submit">Reset Password</button>
-    </form>
+    <div className="reset-password-container">
+      <h2>Create a New Password</h2>
+      <form onSubmit={handleSubmit} className="reset-password-form">
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          placeholder="Enter your new password"
+          className="form-input"
+          required
+        />
+        <button type="submit" className="form-button">
+          Reset Password
+        </button>
+      </form>
+    </div>
   );
 }
 
