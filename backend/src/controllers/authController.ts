@@ -10,6 +10,8 @@ import {
 } from "../utils/jwtHelper";
 import { v4 as uuidv4 } from "uuid";
 import { sendVerificationEmail } from "../utils/mailer";
+import AdminModel from "../models/AdminModel";
+import ParticipantModel from "../models/ParticipantModel";
 
 const registerUser = async (req: Request, res: Response): Promise<Response> => {
   const { firstName, lastName, email, password, confirmPassword, roles, dob } =
@@ -32,7 +34,6 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Selected roles:", roles);
     const user = await UserModel.create(
       firstName,
       lastName,
@@ -43,6 +44,12 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
     );
 
     await UserModel.setRoleChosen(user.id);
+
+    if (roles.includes("admin")) {
+      await AdminModel.create(user.id);
+    } else if (roles.includes("participant")) {
+      await ParticipantModel.create(user.id);
+    }
 
     const verificationToken = uuidv4();
     const verificationTokenExpiresAt = new Date(
