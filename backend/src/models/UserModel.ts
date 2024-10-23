@@ -67,7 +67,7 @@ class UserModel {
     return rows.map((row) => row.name);
   }
 
-  static async updateRole(userId: number, roles: any) {
+  static async updateRole(userId: number, roles: string[]) {
     if (!Array.isArray(roles)) {
       console.error(`Expected roles to be an array, but got:`, roles);
       throw new TypeError("roles must be an array");

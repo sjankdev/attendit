@@ -72,7 +72,7 @@ passport.use(
             profile.name?.familyName || "",
             email,
             "",
-            ["participant"], 
+            ["participant"],
             null
           );
 
@@ -115,7 +115,7 @@ app.get(
 
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
-    const redirectUrl = `http://localhost:3000/select-role?userId=${
+    const redirectUrl = `http:
       user.id
     }&firstTime=${!user.roleChosen}`;
     res.redirect(redirectUrl);
@@ -125,27 +125,32 @@ app.get(
 const roleSelectionRouter = Router();
 
 roleSelectionRouter.post("/select-role", async (req, res) => {
-  const { userId, role, dob } = req.body;
+  const { userId, roles, dob } = req.body;
 
   try {
-    if (!userId || !role || !dob) {
+    if (!userId || !roles || !dob) {
       return res
         .status(400)
-        .json({ message: "User ID, role, and DOB are required" });
+        .json({
+          success: false,
+          message: "User ID, roles, and DOB are required",
+        });
     }
 
     const exists = await UserModel.userExists(userId);
     if (!exists) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
-    await UserModel.updateRole(userId, role);
-
+    await UserModel.updateRole(userId, roles);
     await UserModel.updateDOB(userId, dob);
-
     await UserModel.setRoleChosen(userId);
 
-    if (role === "admin") {
+    const isAdmin = roles.includes("admin");
+
+    if (isAdmin) {
       const adminEntryExists = await AdminModel.findByUserId(userId);
       if (!adminEntryExists) {
         await AdminModel.create(userId);
@@ -160,10 +165,12 @@ roleSelectionRouter.post("/select-role", async (req, res) => {
       }
     }
 
-    res.status(200).json({ message: "Role updated successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Role updated successfully" });
   } catch (error) {
     console.error("Error updating role:", error);
-    res.status(500).json({ message: "Error updating role" });
+    res.status(500).json({ success: false, message: "Error updating role" });
   }
 });
 
