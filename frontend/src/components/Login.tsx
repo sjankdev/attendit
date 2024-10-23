@@ -55,7 +55,6 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-wrapper">
-      {" "}
       <div className="login-container">
         <h2 className="login-title">Login</h2>
         <form
@@ -130,7 +129,10 @@ const Login: React.FC = () => {
             Register now
           </button>
         </p>
-        <Link to="/request-password-reset">Forgot Password?</Link>
+
+        <Link to="/request-password-reset" className="forgot-password-link">
+          Forgot Password?
+        </Link>
       </div>
     </div>
   );

@@ -108,3 +108,20 @@ input:focus {
 .register-button:hover {
   color: var(--button-hover-color);
 }
+
+.forgot-password-link {
+  display: inline-block;
+  margin-top: 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.forgot-password-link:hover {
+  background-color: var(--button-hover-color);
+}
