@@ -8,4 +8,5 @@ export interface User {
   isVerified: boolean;
   roleChosen: boolean;
   dob?: Date | null;
+  confirmPassword?: string;
 }

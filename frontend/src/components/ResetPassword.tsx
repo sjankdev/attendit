@@ -5,20 +5,29 @@ import "../assets/css/ResetPassword.css";
 
 function ResetPassword() {
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const token = new URLSearchParams(window.location.search).get("token");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
     try {
       await axios.post("http://localhost:5000/api/auth/reset-password", {
         token,
         newPassword,
       });
       setResetSuccess(true);
+      setErrorMessage("");
     } catch (error) {
-      alert("Error resetting password. Please try again.");
+      setErrorMessage("Error resetting password. Please try again.");
     }
   };
 
@@ -38,6 +47,15 @@ function ResetPassword() {
           className="form-input"
           required
         />
+        <input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Confirm your new password"
+          className="form-input"
+          required
+        />
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
         <button type="submit" className="form-button">
           Reset Password
         </button>
