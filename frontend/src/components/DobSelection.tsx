@@ -29,7 +29,11 @@ const DobSelection: React.FC = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/select-role",
-        { userId, role, dob },
+        {
+          userId,
+          roles: [role],
+          dob,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,

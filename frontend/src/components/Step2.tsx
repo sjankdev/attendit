@@ -1,21 +1,20 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import eventAdminIcon from "../assets/photos/icons/event-admin.png"; 
-import eventParticipantIcon from "../assets/photos/icons/event-participant.png"; 
+import eventAdminIcon from "../assets/photos/icons/event-admin.png";
+import eventParticipantIcon from "../assets/photos/icons/event-participant.png";
 import "../assets/css/Step2.css";
 
 interface Step2Props {
-  onNext: (role: string) => void;
+  onNext: (roles: string[]) => void;
   onBack: () => void;
 }
 
 const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
-  const { handleSubmit } = useForm();
 
-  const handleNext = () => {
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
     if (selectedRole) {
-      onNext(selectedRole);
+      onNext([selectedRole]);
     }
   };
 
@@ -26,7 +25,7 @@ const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
   return (
     <div className="step2-container">
       <h2 className="step2-title">You are joining as?</h2>
-      <form onSubmit={handleSubmit(handleNext)} className="step2-form">
+      <form className="step2-form" onSubmit={handleNext}>
         <div className="role-selection">
           <div
             className={`role-option ${
@@ -55,7 +54,11 @@ const Step2: React.FC<Step2Props> = ({ onNext, onBack }) => {
           <button type="button" className="back-button" onClick={onBack}>
             Back
           </button>
-          <button type="submit" className="next-button" disabled={!selectedRole}>
+          <button
+            type="submit"
+            className="next-button"
+            disabled={!selectedRole}
+          >
             Next
           </button>
         </div>

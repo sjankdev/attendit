@@ -9,11 +9,11 @@ const Registration: React.FC = () => {
   const [formData, setFormData] = useState<{
     email?: string;
     password?: string;
-    role?: string;
+    roles?: string[];
     firstName?: string;
     lastName?: string;
     dob?: string;
-  } | null>(null);
+  }>({});
   const [serverError, setServerError] = useState<string>("");
 
   const handleNextStep = (data: any) => {
@@ -58,7 +58,7 @@ const Registration: React.FC = () => {
       )}
       {currentStep === 2 && (
         <Step2
-          onNext={(role) => handleNextStep({ role })}
+          onNext={(roles) => handleNextStep({ roles })}
           onBack={handleBackStep}
         />
       )}

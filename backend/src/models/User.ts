@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   email: string;
   password: string;
-  role: string;
+  roles: string[]; 
   isVerified: boolean;
   roleChosen: boolean;
   dob?: Date | null;
