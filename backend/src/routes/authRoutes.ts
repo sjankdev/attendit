@@ -11,6 +11,7 @@ import {
 import UserModel from "../models/UserModel";
 import { resendVerificationEmail } from "../controllers/authController";
 import JwtTokenModel from "../models/JwtTokenModel";
+import { authenticateJWT } from "../utils/jwtHelper";
 const router = express.Router();
 
 interface RegisterRequest extends Request {
@@ -70,6 +71,21 @@ router.get("/verify", async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/user/roles", authenticateJWT, async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  try {
+    const roles = await UserModel.getUserRoles(userId);
+    res.json({ roles });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

@@ -7,7 +7,11 @@ import authRoutes from "./routes/authRoutes";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User as UserModelInterface } from "./models/User";
 import UserModel from "./models/UserModel";
-import { signToken, signRefreshToken } from "./utils/jwtHelper";
+import {
+  signToken,
+  signRefreshToken,
+  authenticateJWT,
+} from "./utils/jwtHelper";
 import JwtTokenModel from "./models/JwtTokenModel";
 import ParticipantModel from "./models/ParticipantModel";
 import AdminModel from "./models/AdminModel";
@@ -115,7 +119,7 @@ app.get(
 
     await JwtTokenModel.updateRefreshToken(user.id, token, refreshToken);
 
-    const redirectUrl = `http://localhost:3000/select-role?userId=${
+    const redirectUrl = `http:
       user.id
     }&firstTime=${!user.roleChosen}`;
     res.redirect(redirectUrl);
@@ -129,12 +133,10 @@ roleSelectionRouter.post("/select-role", async (req, res) => {
 
   try {
     if (!userId || !roles || !dob) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User ID, roles, and DOB are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User ID, roles, and DOB are required",
+      });
     }
 
     const exists = await UserModel.userExists(userId);
@@ -171,6 +173,22 @@ roleSelectionRouter.post("/select-role", async (req, res) => {
   } catch (error) {
     console.error("Error updating role:", error);
     res.status(500).json({ success: false, message: "Error updating role" });
+  }
+});
+
+app.get("/api/user/roles", authenticateJWT, async (req, res) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+
+  try {
+    const roles = await UserModel.getUserRoles(userId);
+    res.json({ roles });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
