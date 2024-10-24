@@ -16,6 +16,5 @@ export const getUserRoles = async (): Promise<string[]> => {
   }
 
   const data = await response.json();
-  console.log("Fetched roles:", data.roles);
   return data.roles || [];
 };

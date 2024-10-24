@@ -20,16 +20,13 @@ class UserModel {
     );
 
     const insertId = result.insertId as number;
-    console.log(`User created with ID: ${insertId}. Roles: ${roles}`);
 
     for (const role of roles) {
-      console.log(`Inserting role: ${role} for user ID: ${insertId}`);
       try {
         const [insertResult] = await db.execute<ResultSetHeader>(
           "INSERT INTO user_roles (user_id, role_id) SELECT ?, id FROM roles WHERE name = ?",
           [insertId, role]
         );
-        console.log(`Insert result for role ${role}:`, insertResult);
       } catch (error) {
         console.error(
           `Error inserting role ${role} for user ID ${insertId}:`,
@@ -123,9 +120,6 @@ class UserModel {
     token: string,
     newPassword: string
   ): Promise<boolean> {
-    console.log("Reset Password called with token:", token);
-    console.log("New password:", newPassword);
-
     const user = await this.findByResetToken(token);
     if (!user) {
       console.error("Invalid token:", token);
@@ -137,7 +131,6 @@ class UserModel {
       "UPDATE users SET password = ?, resetToken = NULL, resetTokenExpiresAt = NULL WHERE id = ?",
       [hashedPassword, user.id]
     );
-    console.log("Password reset successfully for user ID:", user.id);
     return true;
   }
 

@@ -27,11 +27,8 @@ const App: React.FC = () => {
       if (isAuthenticated()) {
         try {
           const userRoles = await getUserRoles();
-          console.log("User roles after fetch:", userRoles);
           setRoles(userRoles);
-        } catch (err) {
-          console.error("Failed to fetch user roles:", err);
-        }
+        } catch (err) {}
       }
       setLoading(false);
     };

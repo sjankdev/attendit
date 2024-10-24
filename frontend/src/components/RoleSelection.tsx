@@ -26,8 +26,6 @@ const RoleSelection: React.FC = () => {
   };
 
   const handleRoleSubmit = () => {
-    console.log("Selected Role:", selectedRole);
-
     if (selectedRole) {
       navigate(
         `/select-dob?userId=${userId}&role=${selectedRole}&token=${token}&refreshToken=${refreshToken}`

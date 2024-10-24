@@ -41,11 +41,9 @@ const DobSelection: React.FC = () => {
         }
       );
 
-      console.log("Response from server:", response.data);
       alert(response.data.message);
       window.location.href = `/home?token=${token}&refreshToken=${refreshToken}`;
     } catch (error: any) {
-      console.error("Error during DOB submission:", error);
       setServerError(error.response?.data?.message || "An error occurred");
     }
   };

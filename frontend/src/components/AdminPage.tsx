@@ -9,7 +9,6 @@ const AdminPage = () => {
   useEffect(() => {
     const checkRoles = async () => {
       const roles = await getUserRoles();
-      console.log("Fetched roles:", roles);
 
       if (!isAdmin(roles)) {
         const message = "You are not authorized to access this page.";
@@ -19,7 +18,6 @@ const AdminPage = () => {
           navigate("/home");
         }, 3000);
       } else {
-        console.log("User is authorized.");
       }
     };
 

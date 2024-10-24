@@ -17,8 +17,6 @@ const registerUser = async (req: Request, res: Response): Promise<Response> => {
   const { firstName, lastName, email, password, confirmPassword, roles, dob } =
     req.body;
 
-  console.log("Selected roles:", roles);
-
   if (password !== confirmPassword) {
     return res
       .status(400)
